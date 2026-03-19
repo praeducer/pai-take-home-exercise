@@ -50,3 +50,9 @@ def test_cache_miss_returns_none(tmp_path, monkeypatch):
     monkeypatch.setattr("src.pipeline.image_generator.CACHE_DIR", tmp_path)
     result = _get_cached("nonexistent-key")
     assert result is None
+
+
+def test_negative_prompt_in_cache_key():
+    k1 = _cache_key("p", 1024, 1024, "m", "")
+    k2 = _cache_key("p", 1024, 1024, "m", "text, words")
+    assert k1 != k2

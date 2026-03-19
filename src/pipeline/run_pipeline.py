@@ -9,7 +9,11 @@ from .output_manager import write_manifest
 from .prompt_constructor import build_image_prompt, build_text_overlay_content
 from .sku_parser import parse_sku_brief
 from .text_overlay import apply_overlay
-from .text_reasoning import enhance_prompt_with_reasoning, get_bedrock_client
+from .text_reasoning import (
+    enhance_prompt_with_reasoning,
+    generate_brand_profile,
+    get_bedrock_client,
+)
 
 RATIO_FORMAT_MAP = {
     "1:1": "front_label",
@@ -20,7 +24,7 @@ RATIO_FORMAT_MAP = {
 
 def run_pipeline(
     sku_brief_path: str,
-    model_tier: str = "dev",
+    model_tier: str = "final",
     dry_run: bool = False,
     output_bucket: str = None,
     profile: str = "pai-exercise",
@@ -37,6 +41,7 @@ def run_pipeline(
     region = brief.get("region", "us-east")
 
     text_client = None if dry_run else get_bedrock_client()
+    brand_profile = generate_brand_profile(brief, dry_run)
     model_id = MODEL_TIERS.get(model_tier, MODEL_TIERS["dev"])
 
     output_keys = []
@@ -46,14 +51,14 @@ def run_pipeline(
         product_slug = (product.get("flavor") or product["name"]).lower().replace(" ", "-")
         for aspect_ratio, format_name in RATIO_FORMAT_MAP.items():
             try:
-                base_prompt = build_image_prompt(brief, product, aspect_ratio)
+                base_prompt, neg_prompt = build_image_prompt(brief, product, aspect_ratio, brand_profile)
                 prompt = (
                     enhance_prompt_with_reasoning(text_client, base_prompt, product, dry_run)
                     if text_client
                     else base_prompt
                 )
 
-                image_bytes = generate_image(prompt, aspect_ratio, model_tier, dry_run, profile)
+                image_bytes = generate_image(prompt, aspect_ratio, model_tier, dry_run, profile, neg_prompt)
                 overlay_content = build_text_overlay_content(brief, product)
                 composited = apply_overlay(image_bytes, overlay_content, aspect_ratio)
 
@@ -108,7 +113,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="PAI packaging image generation pipeline")
     parser.add_argument("sku_brief_path", help="Path to SKU brief JSON file")
-    parser.add_argument("--model-tier", default="dev", choices=["dev", "iterate", "final"])
+    parser.add_argument("--model-tier", default="final", choices=["dev", "iterate", "final"])
     parser.add_argument("--dry-run", action="store_true", help="Skip Bedrock calls and S3 uploads")
     parser.add_argument("--output-bucket", default=None, help="S3 output bucket name")
     parser.add_argument("--profile", default="pai-exercise", help="AWS profile name")

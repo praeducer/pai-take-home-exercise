@@ -2,24 +2,26 @@ from src.pipeline.prompt_constructor import build_image_prompt, build_text_overl
 
 
 def test_prompt_contains_product_name(sample_brief, sample_product):
-    prompt = build_image_prompt(sample_brief, sample_product, "1:1")
+    prompt, neg = build_image_prompt(sample_brief, sample_product, "1:1")
     assert "Test Product" in prompt
     assert len(prompt) > 50
 
 
 def test_prompt_contains_attributes(sample_brief, sample_product):
-    prompt = build_image_prompt(sample_brief, sample_product, "1:1")
+    prompt, neg = build_image_prompt(sample_brief, sample_product, "1:1")
     assert "organic" in prompt
 
 
 def test_prompt_contains_region(sample_brief, sample_product):
-    prompt = build_image_prompt(sample_brief, sample_product, "1:1")
+    # region appears in the back-label (9:16) and wraparound (16:9) prompts
+    prompt, neg = build_image_prompt(sample_brief, sample_product, "9:16")
     assert "us-west" in prompt
 
 
-def test_prompt_contains_aspect_ratio(sample_brief, sample_product):
-    prompt = build_image_prompt(sample_brief, sample_product, "9:16")
-    assert "9:16" in prompt
+def test_prompt_contains_format_hint(sample_brief, sample_product):
+    prompt, _ = build_image_prompt(sample_brief, sample_product, "9:16")
+    # Back label (9:16) should mention portrait/vertical composition
+    assert any(kw in prompt.lower() for kw in ["portrait", "vertical", "three-quarter", "lifestyle"])
 
 
 def test_overlay_content_has_regulatory(sample_brief, sample_product):
@@ -40,5 +42,32 @@ def test_overlay_content_title_includes_flavor(sample_brief, sample_product):
 
 def test_prompt_no_flavor_product(sample_brief):
     product = {"name": "Plain Product", "description": "A product without flavor"}
-    prompt = build_image_prompt(sample_brief, product, "1:1")
+    prompt, neg = build_image_prompt(sample_brief, product, "1:1")
     assert "Plain Product" in prompt
+
+
+def test_negative_prompt_contains_text(sample_brief, sample_product):
+    _, neg = build_image_prompt(sample_brief, sample_product, "1:1")
+    assert "text" in neg.lower()
+
+
+def test_prompts_differ_by_format(sample_brief, sample_product):
+    front_pos, _ = build_image_prompt(sample_brief, sample_product, "1:1")
+    back_pos, _ = build_image_prompt(sample_brief, sample_product, "9:16")
+    wrap_pos, _ = build_image_prompt(sample_brief, sample_product, "16:9")
+    assert front_pos != back_pos
+    assert back_pos != wrap_pos
+    assert front_pos != wrap_pos
+
+
+def test_brand_profile_incorporated_in_prompt(sample_brief, sample_product):
+    profile = {
+        "photography_style": "macro closeup",
+        "color_palette": "electric blue",
+        "regional_visual_elements": "",
+        "background_description": "gradient studio",
+        "packaging_hero_shot": "top-down",
+        "negative_guidance": "",
+    }
+    pos, _ = build_image_prompt(sample_brief, sample_product, "1:1", brand_profile=profile)
+    assert "macro closeup" in pos or "electric blue" in pos
