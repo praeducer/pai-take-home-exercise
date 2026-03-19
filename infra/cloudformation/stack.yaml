@@ -1,0 +1,154 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "PAI Packaging Automation PoC — S3 buckets, IAM role, Budget alarm"
+
+Parameters:
+  BudgetEmail:
+    Type: String
+    Default: "paul@example.com"
+    Description: "Email address for budget alarm notifications"
+
+Resources:
+
+  # ---------- S3: Input Assets Bucket ----------
+  PaiAssetsInputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireNoncurrentVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 90
+
+  # ---------- S3: Output Packaging Images Bucket ----------
+  PaiPackagingOutputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireNoncurrentVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 90
+
+  # ---------- IAM: Pipeline Execution Role ----------
+  PaiPipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: pai-pipeline-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+          # Allow assumption by IAM users in the same account (for local dev)
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: pai-pipeline-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # S3 read on input bucket
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:HeadObject
+                Resource:
+                  - !GetAtt PaiAssetsInputBucket.Arn
+                  - !Sub "${PaiAssetsInputBucket.Arn}/*"
+              # S3 read/write on output bucket
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt PaiPackagingOutputBucket.Arn
+                  - !Sub "${PaiPackagingOutputBucket.Arn}/*"
+              # Bedrock model invocations
+              - Effect: Allow
+                Action: bedrock:InvokeModel
+                Resource:
+                  - arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-canvas-v1:0
+                  - arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-image-generator-v2:0
+                  - arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-6
+              # Explicit denies — defense in depth
+              - Effect: Deny
+                Action:
+                  - s3:DeleteObject
+                  - s3:DeleteBucket
+                  - s3:PutBucketPolicy
+                  - iam:*
+                Resource: "*"
+
+  # ---------- Budget: $25/month alarm ----------
+  PaiBudgetAlarm:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: pai-exercise-budget
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit:
+          Amount: 25
+          Unit: USD
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetEmail
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetEmail
+
+Outputs:
+  InputBucketName:
+    Description: "S3 bucket for input assets"
+    Value: !Ref PaiAssetsInputBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-InputBucketName"
+
+  OutputBucketName:
+    Description: "S3 bucket for generated packaging images"
+    Value: !Ref PaiPackagingOutputBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-OutputBucketName"
+
+  PipelineRoleArn:
+    Description: "IAM role ARN for pipeline execution"
+    Value: !GetAtt PaiPipelineRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-PipelineRoleArn"
