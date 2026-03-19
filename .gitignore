@@ -65,13 +65,12 @@ secrets/*
 Thumbs.db
 desktop.ini
 
-# Generated outputs (large binaries — download from S3 for demo)
-outputs/demo/
-outputs/runs/
+# Generated outputs — runs manifests and demo images stay in repo
+# Ignore nothing under outputs/ — JSON manifests and selected PNG demo images are committed
+outputs/preview/
 
 # Keep outputs directory structure
 !outputs/.gitkeep
-!outputs/runs/.gitkeep
 
 # Logs
 *.log
