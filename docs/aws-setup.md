@@ -3,6 +3,8 @@
 Complete AWS console and CLI setup for the `pai-exercise` IAM user. Execute the steps below
 in order. All CLI steps run in Git Bash.
 
+For a high-level security and assistant-governance overview, see `docs/security-configuration.md`.
+
 ---
 
 ## Step 1 — Create IAM User in AWS Console
@@ -36,10 +38,10 @@ in order. All CLI steps run in Git Bash.
 ## Step 3 — Configure AWS CLI Profile
 
 ```bash
-aws configure set aws_access_key_id     YOUR_ACCESS_KEY_ID     --profile pai-exercise
+aws configure set aws_access_key_id YOUR_ACCESS_KEY_ID --profile pai-exercise
 aws configure set aws_secret_access_key YOUR_SECRET_ACCESS_KEY --profile pai-exercise
-aws configure set region                us-east-1              --profile pai-exercise
-aws configure set output                json                   --profile pai-exercise
+aws configure set region us-east-1 --profile pai-exercise
+aws configure set output json --profile pai-exercise
 ```
 
 Verify:
@@ -70,8 +72,7 @@ Bedrock models auto-enable on first invocation. No console enablement page is ne
 Confirm models are visible in the catalog:
 
 ```bash
-aws bedrock list-foundation-models --profile pai-exercise --region us-east-1 \
-  --query "modelSummaries[?contains(modelId,'nova-canvas') || contains(modelId,'titan-image') || contains(modelId,'claude-sonnet-4-6')].modelId"
+aws bedrock list-foundation-models --profile pai-exercise --region us-east-1 --query "modelSummaries[?contains(modelId,'nova-canvas') || contains(modelId,'titan-image') || contains(modelId,'claude-sonnet-4-6')].modelId"
 ```
 
 Expected output (all three present):
@@ -260,18 +261,25 @@ Paste this exactly into the JSON tab in Step 1 above.
 
 ---
 
+## CloudFormation Connection Test
+
+Before deploying, verify that your profile can call the CloudFormation service in `us-east-1`:
+
+```bash
+aws cloudformation list-stacks --max-items 1 --profile pai-exercise --region us-east-1
+```
+
+If this returns stack metadata (or an empty result without auth errors), the service connection is working.
+
+---
+
 ## CloudFormation Deploy Command
 
 Use `CAPABILITY_NAMED_IAM` (not just `CAPABILITY_IAM`) because the stack defines a role with
 a custom name (`PaiPipelineRole`):
 
 ```bash
-aws cloudformation deploy \
-  --stack-name pai-exercise \
-  --template-file infra/cloudformation/stack.yaml \
-  --capabilities CAPABILITY_NAMED_IAM \
-  --profile pai-exercise \
-  --region us-east-1
+aws cloudformation deploy --stack-name pai-exercise --template-file infra/cloudformation/stack.yaml --capabilities CAPABILITY_NAMED_IAM --profile pai-exercise --region us-east-1
 ```
 
 ---
@@ -287,15 +295,42 @@ When GitHub Actions CI/CD is set up in Phase 4, add these secrets to the repo:
 
 These are used by `deploy.yml` to run `aws cloudformation deploy` from GitHub Actions.
 
+### Test GitHub Actions AWS Credentials
+
+After adding the secrets, verify they work before relying on CI/CD deploys:
+
+1. Open **GitHub → praeducer/pai-take-home-exercise → Actions**.
+2. Select the deploy workflow (`deploy.yml`).
+3. Click **Run workflow** on the `main` branch (or the branch configured in the workflow).
+4. In the workflow logs, confirm the AWS auth step succeeds and run identity output shows:
+  - Account: `730007904340`
+  - ARN: `arn:aws:iam::730007904340:user/pai-exercise`
+5. If the run fails with credential errors, re-check `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` values in repository secrets.
+
 ---
 
 ## Environment Variables for Local Development
 
-Set these in your shell profile or `.env` (never commit `.env`):
+Use a repo-root `.env` file (standard dotenv location used by most tooling). This file is gitignored in this repo.
+
+1. Create `.env` in the project root with:
 
 ```bash
-export AWS_PROFILE=pai-exercise
-export AWS_REGION=us-east-1
+AWS_PROFILE=pai-exercise
+AWS_REGION=us-east-1
+```
+
+2. Keep secrets out of `.env` (do not put access keys there). Store credentials in the default AWS location:
+
+```text
+~/.aws/credentials
+~/.aws/config
+```
+
+3. Verify the profile and region are usable:
+
+```bash
+aws sts get-caller-identity --profile pai-exercise --region us-east-1
 ```
 
 The `AnthropicBedrock` client requires `aws_region` set explicitly — it does not read
