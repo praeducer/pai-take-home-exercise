@@ -23,21 +23,29 @@ After each phase, save a context snapshot as `phase-0N-complete.md` in the repo 
 
 ## Current State
 
-**Pre-Phase 1.** Local repo initialized. GitHub remote does NOT yet exist.
+**Phase 1 — In Progress.** Tasks 1, 2, 7, 8, 9, 10, 11 complete. Tasks 3, 4, 5, 6 remaining.
 
-### Phase 1 Task 1 — Critical Deviation from Plan
+| Task | Status | Notes |
+|------|--------|-------|
+| 1 — GitHub repo | ✅ Done | `praeducer/pai-take-home-exercise` public, remote set |
+| 2 — Directory structure | ✅ Done | All dirs exist |
+| 3 — venv + requirements.txt | ❌ Remaining | Deps installed globally; `.venv` and `requirements.txt` not yet created |
+| 4 — CloudFormation stack.yaml | ❌ Remaining | `infra/cloudformation/` is empty |
+| 5 — Deploy stack | ❌ Remaining | Depends on Task 4 |
+| 6 — G-001 Bedrock gate | ❌ Remaining | Depends on Task 5 |
+| 7 — CLAUDE.md | ✅ Done | |
+| 8 — 8 skills scaffolded | ✅ Done | All 8 in `.claude/skills/` |
+| 9 — .claude/settings.json hooks | ✅ Done | ruff lint, pytest stop hook, destructive guard |
+| 10 — .mcp.json | ✅ Done | aws-iac + aws-knowledge configured |
+| 11 — Commit + push | ✅ Done | Public repo hardened, OSS governance committed |
 
-The plan says `gh repo create praeducer/pai-take-home-exercise --public --clone --gitignore Python`.
-**That will fail** because the local directory already exists.
+### Environment Status (as of 2026-03-19)
 
-Use this instead:
-```bash
-gh repo create praeducer/pai-take-home-exercise --public
-git remote add origin https://github.com/praeducer/pai-take-home-exercise.git
-git push -u origin main
-```
-
-Everything else in phase-01-foundation.md is unchanged.
+- AWS credentials: `pai-exercise` profile configured → account `730007904340` verified
+- uv: `0.10.11` via WinGet — accessible in Git Bash
+- Python deps: `boto3`, `anthropic`, `Pillow`, `jsonschema` installed globally (no venv yet)
+- GitHub: authenticated as `praeducer`, token scopes `repo workflow read:org gist`
+- CloudFormation stack: **NOT deployed**
 
 ---
 
