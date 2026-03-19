@@ -1,0 +1,18 @@
+{
+  "sku_id": "organic-trail-mix-us",
+  "products": [
+    {
+      "name": "Organic Trail Mix",
+      "flavor": "Original",
+      "description": "Classic blend of nuts, seeds, and dried fruit for sustained energy"
+    },
+    {
+      "name": "Organic Trail Mix",
+      "flavor": "Dark Chocolate",
+      "description": "Premium trail mix with fair-trade dark chocolate chips and antioxidant-rich berries"
+    }
+  ],
+  "region": "us-west",
+  "audience": "health-conscious adults 25-40",
+  "attributes": ["organic", "non-gmo", "high-protein", "gluten-free"]
+}
