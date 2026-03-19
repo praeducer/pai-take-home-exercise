@@ -1,0 +1,289 @@
+# AWS Setup — PAI Take-Home Exercise
+
+Complete AWS console and CLI setup for the `pai-exercise` IAM user. Execute the steps below
+in order. All CLI steps run in Git Bash.
+
+---
+
+## Step 1 — Create IAM User in AWS Console
+
+1. Sign in to **AWS Console** → account `730007904340` → **IAM** → **Users** → **Create user**
+2. **User name:** `pai-exercise`
+3. **Provide user access to the AWS Management Console:** leave unchecked (programmatic only)
+4. Click **Next**
+5. **Set permissions:** choose **Attach policies directly**
+6. Click **Create policy** (opens new tab) → **JSON** tab → paste the full policy below → **Next**
+7. **Policy name:** `pai-exercise-policy` → **Create policy**
+8. Back on the user creation tab, refresh and attach `pai-exercise-policy`
+9. Click **Next** → **Create user**
+
+---
+
+## Step 2 — Create Access Key
+
+1. Click the `pai-exercise` user → **Security credentials** tab
+2. **Access keys** section → **Create access key**
+3. **Use case:** Command Line Interface (CLI)
+4. Acknowledge the recommendation → **Next**
+5. **Description tag:** `pai-exercise-cli` (optional)
+6. **Create access key**
+7. **Save both values** — the Secret Access Key is shown only once:
+   - Access Key ID: `AKIA...`
+   - Secret Access Key: `...`
+
+---
+
+## Step 3 — Configure AWS CLI Profile
+
+```bash
+aws configure set aws_access_key_id     YOUR_ACCESS_KEY_ID     --profile pai-exercise
+aws configure set aws_secret_access_key YOUR_SECRET_ACCESS_KEY --profile pai-exercise
+aws configure set region                us-east-1              --profile pai-exercise
+aws configure set output                json                   --profile pai-exercise
+```
+
+Verify:
+
+```bash
+aws sts get-caller-identity --profile pai-exercise
+# Expected output:
+# {
+#     "UserId": "AIDA...",
+#     "Account": "730007904340",
+#     "Arn": "arn:aws:iam::730007904340:user/pai-exercise"
+# }
+```
+
+---
+
+## Step 4 — Verify Bedrock Model Access
+
+Bedrock models auto-enable on first invocation. No console enablement page is needed.
+
+- **Amazon models** (Nova Canvas, Titan V2): auto-enable on first `InvokeModel` call.
+- **Anthropic Claude Sonnet 4.6**: has an AWS Marketplace product ID. The IAM policy below
+  includes `aws-marketplace:Subscribe` so the auto-enablement works on first invocation.
+  First-time users may be prompted to submit brief use case details in the AWS console
+  the first time Claude is invoked from this account.
+
+Confirm models are visible in the catalog:
+
+```bash
+aws bedrock list-foundation-models --profile pai-exercise --region us-east-1 \
+  --query "modelSummaries[?contains(modelId,'nova-canvas') || contains(modelId,'titan-image') || contains(modelId,'claude-sonnet-4-6')].modelId"
+```
+
+Expected output (all three present):
+
+```json
+[
+    "amazon.nova-canvas-v1:0",
+    "amazon.titan-image-generator-v2:0",
+    "anthropic.claude-sonnet-4-6"
+]
+```
+
+---
+
+## Full IAM Policy — `pai-exercise-policy`
+
+Paste this exactly into the JSON tab in Step 1 above.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BedrockInvokeModels",
+      "Effect": "Allow",
+      "Action": "bedrock:InvokeModel",
+      "Resource": [
+        "arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-canvas-v1:0",
+        "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-image-generator-v2:0",
+        "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-6"
+      ]
+    },
+    {
+      "Sid": "BedrockListModels",
+      "Effect": "Allow",
+      "Action": "bedrock:ListFoundationModels",
+      "Resource": "*"
+    },
+    {
+      "Sid": "S3PipelineOperations",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:ListBucket",
+        "s3:HeadObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::pai-assets-input-*",
+        "arn:aws:s3:::pai-assets-input-*/*",
+        "arn:aws:s3:::pai-packaging-output-*",
+        "arn:aws:s3:::pai-packaging-output-*/*"
+      ]
+    },
+    {
+      "Sid": "CloudFormationStack",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:CreateStack",
+        "cloudformation:UpdateStack",
+        "cloudformation:DeleteStack",
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStackResources",
+        "cloudformation:GetTemplate",
+        "cloudformation:ListStackResources",
+        "cloudformation:CreateChangeSet",
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:ExecuteChangeSet",
+        "cloudformation:DeleteChangeSet"
+      ],
+      "Resource": "arn:aws:cloudformation:us-east-1:730007904340:stack/pai-exercise*"
+    },
+    {
+      "Sid": "CloudFormationValidate",
+      "Effect": "Allow",
+      "Action": "cloudformation:ValidateTemplate",
+      "Resource": "*"
+    },
+    {
+      "Sid": "IAMForCloudFormation",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:PassRole",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:CreateInstanceProfile",
+        "iam:DeleteInstanceProfile",
+        "iam:AddRoleToInstanceProfile",
+        "iam:RemoveRoleFromInstanceProfile",
+        "iam:GetInstanceProfile"
+      ],
+      "Resource": [
+        "arn:aws:iam::730007904340:role/pai-exercise-*",
+        "arn:aws:iam::730007904340:instance-profile/pai-exercise-*"
+      ]
+    },
+    {
+      "Sid": "S3BucketManagement",
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:DeleteBucket",
+        "s3:PutBucketPublicAccessBlock",
+        "s3:GetBucketPublicAccessBlock",
+        "s3:PutBucketVersioning",
+        "s3:GetBucketVersioning",
+        "s3:GetBucketLocation",
+        "s3:PutEncryptionConfiguration",
+        "s3:GetEncryptionConfiguration",
+        "s3:PutLifecycleConfiguration",
+        "s3:GetLifecycleConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:s3:::pai-assets-input-*",
+        "arn:aws:s3:::pai-packaging-output-*"
+      ]
+    },
+    {
+      "Sid": "BudgetsForAlarm",
+      "Effect": "Allow",
+      "Action": [
+        "budgets:CreateBudget",
+        "budgets:ModifyBudget",
+        "budgets:DeleteBudget",
+        "budgets:ViewBudget"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "MarketplaceForAnthropicAutoEnablement",
+      "Effect": "Allow",
+      "Action": [
+        "aws-marketplace:Subscribe",
+        "aws-marketplace:Unsubscribe",
+        "aws-marketplace:ViewSubscriptions"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyDestructive",
+      "Effect": "Deny",
+      "Action": [
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion",
+        "iam:CreateUser",
+        "iam:DeleteUser",
+        "iam:CreateAccessKey",
+        "iam:DeleteAccessKey",
+        "bedrock:CreateModelCustomizationJob",
+        "bedrock:DeleteFoundationModelAgreement",
+        "organizations:*",
+        "account:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+---
+
+## Policy Statement Reference
+
+| Statement | What It Covers | Why |
+|-----------|---------------|-----|
+| `BedrockInvokeModels` | Call Nova Canvas, Titan V2, Claude Sonnet 4.6 | Pipeline image generation and text reasoning |
+| `BedrockListModels` | List available foundation models | G-001 verification, `/health-check` skill |
+| `S3PipelineOperations` | Read input assets, write output images and manifests | Core pipeline S3 I/O |
+| `CloudFormationStack` | Create/update/delete/describe the `pai-exercise` stack | `/deploy` and `/teardown` skills |
+| `CloudFormationValidate` | Validate template syntax before deploy | Pre-deploy safety check |
+| `IAMForCloudFormation` | CloudFormation creates `PaiPipelineRole` with `CAPABILITY_IAM` | Required for `aws cloudformation deploy --capabilities CAPABILITY_IAM` |
+| `S3BucketManagement` | CloudFormation creates the two S3 buckets with Block Public Access | Required for bucket resource creation in stack |
+| `BudgetsForAlarm` | CloudFormation creates `$25` monthly budget alarm | Cost guard |
+| `MarketplaceForAnthropicAutoEnablement` | Claude Sonnet 4.6 has a Marketplace product ID; Subscribe enables auto-enablement on first invocation | Required for Anthropic model first use in this account |
+| `DenyDestructive` | Explicit deny on object deletion, user/key creation, model training, org actions | Blast-radius limit; prevents accidental data loss or privilege escalation |
+
+---
+
+## GitHub Actions Secrets (Phase 4)
+
+When GitHub Actions CI/CD is set up in Phase 4, add these secrets to the repo:
+
+1. **GitHub → praeducer/pai-take-home-exercise → Settings → Secrets and variables → Actions**
+2. Add:
+   - `AWS_ACCESS_KEY_ID` — same key as Step 2
+   - `AWS_SECRET_ACCESS_KEY` — same secret as Step 2
+
+These are used by `deploy.yml` to run `aws cloudformation deploy` from GitHub Actions.
+
+---
+
+## Environment Variables for Local Development
+
+Set these in your shell profile or `.env` (never commit `.env`):
+
+```bash
+export AWS_PROFILE=pai-exercise
+export AWS_REGION=us-east-1
+```
+
+The `AnthropicBedrock` client requires `aws_region` set explicitly — it does not read
+`~/.aws/config` automatically:
+
+```python
+from anthropic import AnthropicBedrock
+client = AnthropicBedrock(aws_region="us-east-1")
+```

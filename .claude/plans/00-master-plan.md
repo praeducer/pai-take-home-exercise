@@ -45,7 +45,7 @@ flowchart LR
   P5 --> P6
 ```
 
-**Critical path:** AWS console Bedrock access (G-001, BLOCKING) → first image (G-002) → all 3 ratios (G-003) → CI/CD green (G-004) → repo published (G-005)
+**Critical path:** Bedrock first-invocation gate (G-001) → first image (G-002) → all 3 ratios (G-003) → CI/CD green (G-004) → repo published (G-005)
 
 **P6 is optional.** P5 completion = all exercise requirements met. P6 adds brand compliance and regulatory checks as bonus differentiation.
 
@@ -55,7 +55,7 @@ flowchart LR
 
 | Gate | After Phase | Blocking | Human Action Required |
 |------|------------|----------|----------------------|
-| G-001 | Pre-P1 | YES | Enable Bedrock model access in AWS console |
+| G-001 | Pre-P1 | YES | Verify IAM policy includes marketplace perms; confirm first invocation succeeds |
 | G-002 | P-002 | YES | Visual inspection of first generated images |
 | G-003 | P-003 | YES | Visual inspection of all 3 aspect ratios |
 | G-004 | P-004 | YES | Verify GitHub Actions green checkmarks |
@@ -67,11 +67,10 @@ flowchart LR
 
 These **cannot be automated** and must be done by Paul before or during implementation:
 
-1. **Before P-001 coding starts:** Enable Bedrock model access in AWS console (Bedrock → Model access → Request access):
-   - `amazon.nova-canvas-v1:0` (Nova Canvas)
-   - `amazon.titan-image-generator-v2:0` (Titan Image Generator V2)
-   - `anthropic.claude-sonnet-4-6` (Claude Sonnet 4.6)
-   - Region: `us-east-1`
+1. **Before P-001 coding starts:** Bedrock model access — the console enablement page has been retired. Models auto-enable on first invocation:
+   - **Amazon models** (`nova-canvas-v1:0`, `titan-image-generator-v2:0`): auto-enable on first `InvokeModel` call — no action required.
+   - **Anthropic Claude Sonnet 4.6**: has an AWS Marketplace product ID. The IAM user policy must include `aws-marketplace:Subscribe` for auto-enablement on first invocation. This is included in the full IAM policy in `docs/aws-setup.md`.
+   - See `docs/aws-setup.md` for the complete IAM policy and exact console steps.
 
 2. **Before CloudFormation deploy:** Run `aws configure --profile pai-exercise`
    - Access Key ID and Secret: from IAM console → Security Credentials
@@ -149,10 +148,10 @@ Future phases load these snapshots to maintain continuity without requiring the 
 |------|----------|---------|
 | Exercise spec | `inputs/PAI-Take_Home_Exercise.md` | Source of truth for exercise requirements |
 | SA requirements | `knowledge_base/requirements.json` v2.0 | FR-001 through FR-015, SC-001 through SC-006 |
-| SA architecture | `knowledge_base/architecture.json` v2.0 | C-001 through C-012, WA scores |
+| SA architecture | `knowledge_base/architecture.json` v2.1 | C-001 through C-012, WA scores |
 | SA security review | `knowledge_base/security_review.json` v2.0 | STRIDE threats, IAM design, findings |
-| SA estimate | `knowledge_base/estimate.json` v2.0 | AI-assisted hours, human action list |
-| SA project plan | `knowledge_base/project_plan.json` v2.0 | 6 phases, 5 gates, risk register |
+| SA estimate | `knowledge_base/estimate.json` v2.1 | AI-assisted hours, human action list |
+| SA project plan | `knowledge_base/project_plan.json` v2.1 | 6 phases, 5 gates, risk register |
 | Proposal | `outputs/eng-2026-003/proposal.md` v2.0 | Claude Code interface, CI/CD must-have, Nova Canvas primary, WA scores updated to parallel agent review (6.8/10) — reviewed 2026-03-18 |
 
 ---

@@ -2,7 +2,7 @@
 
 **Goal:** Set up the complete development environment, repository, and AWS infrastructure so that the implementation agent can write pipeline code immediately. No application code in this phase — foundation only.
 
-**Minimum state after this phase:** `aws cloudformation describe-stacks --stack-name pai-exercise` returns `CREATE_COMPLETE` and Bedrock model access is confirmed (G-001 passed).
+**Minimum state after this phase:** `aws cloudformation describe-stacks --stack-name pai-exercise` returns `CREATE_COMPLETE` and Bedrock first-invocation gate is confirmed (G-001 passed).
 
 ---
 
@@ -11,10 +11,9 @@
 Complete ALL of these before starting Phase 1:
 
 - [ ] AWS account available (ID: `730007904340`)
-- [ ] Bedrock model access enabled in AWS console — Request access for ALL of:
-  - `amazon.nova-canvas-v1:0` (Nova Canvas)
-  - `amazon.titan-image-generator-v2:0` (Titan Image Generator V2)
-  - `anthropic.claude-sonnet-4-6` (Claude Sonnet 4.6)
+- [ ] Bedrock model access — console enablement page retired; models auto-enable on first invocation.
+  - Amazon models (`nova-canvas-v1:0`, `titan-image-generator-v2:0`): no pre-action needed.
+  - `anthropic.claude-sonnet-4-6`: IAM user policy must include `aws-marketplace:Subscribe` (see `docs/aws-setup.md`).
 - [ ] `aws configure --profile pai-exercise` complete → `aws sts get-caller-identity --profile pai-exercise` returns `730007904340`
 - [ ] `gh auth status` shows authenticated as `praeducer` → if not: `gh auth login --web`
 - [ ] Python 3.12 available: `python --version` returns `3.12.x`
@@ -163,7 +162,7 @@ aws bedrock list-foundation-models --profile pai-exercise --region us-east-1 \
   --query 'modelSummaries[?modelId==`anthropic.claude-sonnet-4-6`]'
 ```
 
-Both commands must return non-empty results. If empty, Bedrock access has not been granted yet — wait for AWS console approval (can take minutes to hours for first-time request).
+Both commands must return non-empty results. If either is empty: confirm the IAM user policy includes `bedrock:InvokeModel` for that model ARN. For Claude Sonnet 4.6, also confirm `aws-marketplace:Subscribe` is in the policy (see `docs/aws-setup.md`).
 
 **Acceptance:** Both model IDs visible in list-foundation-models output. **G-001 PASSED.**
 
@@ -309,7 +308,7 @@ aws cloudformation describe-stacks --stack-name pai-exercise --profile pai-exerc
   --query 'Stacks[0].StackStatus'
 # Expected: "CREATE_COMPLETE"
 
-# Bedrock access (G-001)
+# Bedrock first-invocation gate (G-001)
 aws bedrock list-foundation-models --profile pai-exercise --region us-east-1 \
   --query 'modelSummaries[?contains(modelId, `nova-canvas`)].modelId'
 # Expected: ["amazon.nova-canvas-v1:0"]
@@ -337,9 +336,9 @@ After all automated verifications pass, present to Paul:
 - Bedrock model access confirmation (both nova-canvas-v1:0 and claude-sonnet-4-6 visible)
 - GitHub repo URL: `github.com/praeducer/pai-take-home-exercise`
 
-**Gate question:** "Bedrock access confirmed for all 3 required models? Stack outputs look correct?"
+**Gate question:** "Bedrock first-invocation confirmed for all 3 required models? Stack outputs look correct?"
 
-Paul approves → proceed to Phase 2. Paul needs to wait for Bedrock access → pause here.
+Paul approves → proceed to Phase 2.
 
 ---
 

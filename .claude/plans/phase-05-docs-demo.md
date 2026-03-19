@@ -53,7 +53,7 @@ Optional: Mermaid diagram of data flow.
 1. Prerequisites (Python 3.12, AWS CLI, Claude Code)
 2. `pip install -r requirements.txt`
 3. `aws configure --profile pai-exercise`
-4. Enable Bedrock model access in AWS console (Nova Canvas, Titan V2, Claude Sonnet 4.6)
+4. Deploy CloudFormation stack (Bedrock models auto-enable on first invocation — see `docs/aws-setup.md` for IAM policy)
 5. `aws cloudformation deploy --stack-name pai-exercise --template-file infra/cloudformation/stack.yaml --capabilities CAPABILITY_IAM --profile pai-exercise`
 6. `/run-pipeline inputs/sample_sku_brief.json`
 
@@ -86,7 +86,7 @@ Be honest:
 - No real regulatory compliance database — uses synthesized placeholder text.
 - PoC scope: single-user, local execution, no production auto-scaling.
 - Image quality suitable for demonstration; not validated against real Adobe packaging standards.
-- Bedrock model access requires manual console enablement — cannot be automated.
+- Bedrock models auto-enable on first invocation; IAM policy must include `aws-marketplace:Subscribe` for Anthropic Claude Sonnet 4.6 (see `docs/aws-setup.md`).
 
 ## Backlog
 Link to BACKLOG.md.

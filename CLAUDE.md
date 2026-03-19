@@ -110,7 +110,7 @@ aws sts get-caller-identity --profile pai-exercise
 # CloudFormation stack:
 aws cloudformation describe-stacks --stack-name pai-exercise --profile pai-exercise
 
-# Bedrock model access check (run after enabling in console):
+# Bedrock model access check (models auto-enable on first invocation — see docs/aws-setup.md):
 aws bedrock list-foundation-models --region us-east-1 --profile pai-exercise | grep -E "nova-canvas|titan-image|claude-sonnet"
 ```
 
