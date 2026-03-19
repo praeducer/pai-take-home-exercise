@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "purpose": "Demo brief — Alpine Harvest Organic Trail Mix, EU market. Scandinavian craft aesthetic with dark berry variant.",
+    "data_origin": "Created for Phase A/B final wrap-up."
+  },
+  "sku_id": "alpine-harvest-trail-mix",
+  "brand_name": "Alpine Harvest",
+  "packaging_type": "stand-up resealable pouch",
+  "cultural_context": "Scandinavian organic craft aesthetic. Brown kraft paper tones, moss green, deep forest colors. Nordic botanical illustration style — berries, leaves, pine branches. Honest craftsmanship and sustainability values.",
+  "products": [
+    {
+      "name": "Alpine Harvest Trail Mix",
+      "flavor": "Original",
+      "description": "European organic blend of hazelnuts, walnuts, sunflower seeds, and dried bilberries — inspired by Nordic foraging traditions"
+    },
+    {
+      "name": "Alpine Harvest Trail Mix",
+      "flavor": "Dark Berry",
+      "description": "Rich Nordic berry blend with dark chocolate, dried lingonberries, blackcurrants, and roasted hazelnuts"
+    }
+  ],
+  "region": "eu",
+  "audience": "sustainability-conscious organic food shoppers 28-50 across Northern and Western Europe",
+  "attributes": ["organic", "fairtrade", "recyclable-packaging", "non-gmo"]
+}

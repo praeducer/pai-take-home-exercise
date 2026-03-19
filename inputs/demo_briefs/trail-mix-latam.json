@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "purpose": "Demo brief — Alpine Harvest Organic Trail Mix, LATAM market. Regional adaptation with tropical flavors and vibrant visual identity.",
+    "data_origin": "Created for Phase A/B final wrap-up."
+  },
+  "sku_id": "alpine-harvest-trail-mix",
+  "brand_name": "Alpine Harvest",
+  "packaging_type": "stand-up resealable pouch",
+  "cultural_context": "Vibrant Latin American energy. Golden yellows, terracotta oranges, rich tropical greens. Lush tropical fruit imagery, sun-drenched warmth. Joyful and bold visual presence reflecting the diversity of Latin American markets.",
+  "products": [
+    {
+      "name": "Alpine Harvest Trail Mix",
+      "flavor": "Original",
+      "description": "Classic nut and seed blend adapted for Latin American tastes — almonds, cashews, dried mango, and coconut flakes"
+    },
+    {
+      "name": "Alpine Harvest Trail Mix",
+      "flavor": "Tropical Edition",
+      "description": "Vibrant tropical blend with macadamia nuts, dried pineapple, papaya, and toasted coconut for a taste of the tropics"
+    }
+  ],
+  "region": "latam",
+  "audience": "active families and health-conscious professionals 20-45 across Latin America",
+  "attributes": ["organic", "non-gmo", "tropical-flavors", "no-preservatives"]
+}

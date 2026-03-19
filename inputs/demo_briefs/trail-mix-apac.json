@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "purpose": "Demo brief — Alpine Harvest Organic Trail Mix, APAC market. Zen minimalism aesthetic with matcha green tea variant.",
+    "data_origin": "Created for Phase A/B final wrap-up."
+  },
+  "sku_id": "alpine-harvest-trail-mix",
+  "brand_name": "Alpine Harvest",
+  "packaging_type": "stand-up resealable pouch",
+  "cultural_context": "Japanese-influenced zen minimalism. White and forest green palette with bamboo and stone accents. Clean lines, generous negative space, understated elegance. Communicates purity and natural quality.",
+  "products": [
+    {
+      "name": "Alpine Harvest Trail Mix",
+      "flavor": "Original",
+      "description": "Clean, pure blend of almonds, macadamia, white sesame seeds, and dried yuzu for a refined snacking experience"
+    },
+    {
+      "name": "Alpine Harvest Trail Mix",
+      "flavor": "Matcha Green Tea",
+      "description": "Delicate matcha-dusted almonds, edamame crisps, and white chocolate chips inspired by Japanese tea ceremony traditions"
+    }
+  ],
+  "region": "apac",
+  "audience": "urban wellness-focused consumers 25-40 in Japan, South Korea, and Southeast Asia",
+  "attributes": ["organic", "non-gmo", "matcha-infused", "clean-label"]
+}
