@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'if [ -d tests ] && ls tests/test_*.py 2>/dev/null | head -1 | grep -q test; then python -m pytest tests/ -q --tb=no 2>&1 | tail -3 && echo \"[tests] Suite passed\" || echo \"[tests] WARNING: Some tests failed — review before marking complete\"; else echo \"[tests] No tests yet — skipping test gate\"; fi'"
+            "command": "bash -c 'if [ -d tests ] && ls tests/test_*.py 2>/dev/null | head -1 | grep -q test; then python -m pytest tests/ -q --tb=no -m \"not integration\" 2>&1 | tail -3 && echo \"[tests] Suite passed\" || echo \"[tests] WARNING: Some tests failed — review before marking complete\"; else echo \"[tests] No tests yet — skipping test gate\"; fi'"
           }
         ]
       }

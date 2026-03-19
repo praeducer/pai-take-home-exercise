@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "purpose": "Demo brief — LATAM market granola bar. Demonstrates regional market parameterization with different product category.",
+    "data_origin": "Specified in .claude/plans/phase-05-docs-demo.md Task 4"
+  },
+  "sku_id": "granola-bar-latam",
+  "products": [
+    {
+      "name": "Granola Energy Bar",
+      "flavor": "Honey Oat",
+      "description": "Wholesome honey oat bar with toasted oats, sunflower seeds, and natural honey for all-day energy"
+    },
+    {
+      "name": "Granola Energy Bar",
+      "flavor": "Tropical Fruit",
+      "description": "Vibrant tropical blend with mango, pineapple, and coconut for a taste of paradise"
+    }
+  ],
+  "region": "latam",
+  "audience": "active families and on-the-go professionals 20-45",
+  "attributes": ["whole-grain", "natural-flavors", "no-preservatives", "non-gmo"]
+}

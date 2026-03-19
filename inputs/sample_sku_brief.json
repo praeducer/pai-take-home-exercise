@@ -1,4 +1,14 @@
 {
+  "_meta": {
+    "purpose": "Sample SKU brief for development, testing, and demo runs",
+    "data_origin": "Fictional CPG product specified in .claude/plans/phase-02-core-pipeline.md Task 2. The 'Organic Trail Mix' brand, 'Original' and 'Dark Chocolate' flavor variants, 'us-west' region, and listed attributes were chosen to represent a realistic health-food CPG product brief — the kind of input Adobe GenStudio packaging automation would receive from a brand manager. No real brand is implied.",
+    "design_rationale": [
+      "Two product variants (Original + Dark Chocolate) satisfy the exercise requirement of demonstrating multi-SKU generation in a single pipeline run",
+      "Health-food category (trail mix) is brand-agnostic and avoids any IP/trademark concerns",
+      "Attributes [organic, non-gmo, high-protein, gluten-free] are common CPG label claims that exercise the text overlay compositing across all four badge types",
+      "us-west region was chosen to differ from the AWS deployment region (us-east-1) to verify region-parameterized S3 key paths work correctly"
+    ]
+  },
   "sku_id": "organic-trail-mix-us",
   "products": [
     {

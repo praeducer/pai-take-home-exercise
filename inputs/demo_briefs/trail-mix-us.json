@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "purpose": "Demo brief — US market trail mix. Identical product category as sample_sku_brief.json but run with final-tier Nova Canvas for showcase quality.",
+    "data_origin": "Specified in .claude/plans/phase-05-docs-demo.md Task 4"
+  },
+  "sku_id": "organic-trail-mix-us",
+  "products": [
+    {
+      "name": "Organic Trail Mix",
+      "flavor": "Original",
+      "description": "Classic blend of nuts, seeds, and dried fruit for sustained energy"
+    },
+    {
+      "name": "Organic Trail Mix",
+      "flavor": "Dark Chocolate",
+      "description": "Premium trail mix with fair-trade dark chocolate chips and antioxidant-rich berries"
+    }
+  ],
+  "region": "us-west",
+  "audience": "health-conscious adults 25-40",
+  "attributes": ["organic", "non-gmo", "high-protein", "gluten-free"]
+}

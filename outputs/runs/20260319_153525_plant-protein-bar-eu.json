@@ -1,0 +1,13 @@
+{
+  "run_id": "fe627cbf-5398-46b0-a330-6a489de4a17d",
+  "timestamp": "2026-03-19T19:35:25.136884+00:00",
+  "sku_id": "plant-protein-bar-eu",
+  "region": "eu",
+  "models_used": [
+    "amazon.titan-image-generator-v2:0"
+  ],
+  "images_generated": 6,
+  "dry_run": false,
+  "errors": [],
+  "duration_seconds": 72.09
+}

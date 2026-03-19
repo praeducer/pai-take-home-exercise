@@ -1,0 +1,13 @@
+{
+  "run_id": "b65d6e3a-64e9-4643-a9a7-5ce6c17ba4d3",
+  "timestamp": "2026-03-19T19:03:44.017748+00:00",
+  "sku_id": "organic-trail-mix-us",
+  "region": "us-west",
+  "models_used": [
+    "amazon.titan-image-generator-v2:0"
+  ],
+  "images_generated": 0,
+  "dry_run": true,
+  "errors": [],
+  "duration_seconds": 0.04
+}

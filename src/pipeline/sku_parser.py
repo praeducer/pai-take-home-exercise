@@ -1,6 +1,7 @@
 import json
-import jsonschema
 from pathlib import Path
+
+import jsonschema
 
 SCHEMA_PATH = Path(__file__).parent.parent / "schemas" / "sku_brief_schema.json"
 

@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "purpose": "Demo brief — EU market plant protein bar. Demonstrates EU region and plant-based product category.",
+    "data_origin": "Specified in .claude/plans/phase-05-docs-demo.md Task 4"
+  },
+  "sku_id": "plant-protein-bar-eu",
+  "products": [
+    {
+      "name": "Plant Protein Bar",
+      "flavor": "Vanilla Almond",
+      "description": "Smooth vanilla and roasted almond protein bar with 20g plant protein from pea and brown rice"
+    },
+    {
+      "name": "Plant Protein Bar",
+      "flavor": "Cocoa Hazelnut",
+      "description": "Rich cocoa and roasted hazelnut bar inspired by European confectionery traditions, with 20g plant protein"
+    }
+  ],
+  "region": "eu",
+  "audience": "fitness-conscious adults 25-45 seeking plant-based alternatives",
+  "attributes": ["vegan", "20g-protein", "gluten-free", "no-added-sugar"]
+}

@@ -1,0 +1,13 @@
+{
+  "run_id": "4fbb2767-0888-48d5-89b1-fae3be5f3b10",
+  "timestamp": "2026-03-19T19:32:39.644320+00:00",
+  "sku_id": "granola-bar-latam",
+  "region": "latam",
+  "models_used": [
+    "amazon.titan-image-generator-v2:0"
+  ],
+  "images_generated": 6,
+  "dry_run": false,
+  "errors": [],
+  "duration_seconds": 78.77
+}

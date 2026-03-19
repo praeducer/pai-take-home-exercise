@@ -68,6 +68,7 @@ desktop.ini
 # Generated outputs — runs manifests and demo images stay in repo
 # Ignore nothing under outputs/ — JSON manifests and selected PNG demo images are committed
 outputs/preview/
+outputs/debug_test.png
 
 # Keep outputs directory structure
 !outputs/.gitkeep
