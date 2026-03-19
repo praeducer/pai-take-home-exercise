@@ -15,9 +15,10 @@ Show generated images for a SKU from S3.
 
 ## Steps
 
-1. Run: `aws s3 ls s3://{output_bucket}/{sku_id}/{region}/ --recursive --profile pai-exercise`
-2. Display image list organized by format (front_label, back_label, wraparound)
-3. If `--download`: download each image, then open with `start {path}` (Windows)
+1. Get bucket name: `OUTPUT_BUCKET=$(aws cloudformation describe-stacks --stack-name pai-exercise --profile pai-exercise --query 'Stacks[0].Outputs[?OutputKey==`OutputBucketName`].OutputValue' --output text)`
+2. Run: `aws s3 ls s3://$OUTPUT_BUCKET/$SKU_ID/ --recursive --profile pai-exercise`
+3. Display image list organized by format (front_label, back_label, wraparound)
+4. If `--download`: `aws s3 cp s3://$OUTPUT_BUCKET/$SKU_ID/ outputs/demo/$SKU_ID/ --recursive --profile pai-exercise` then open with `start outputs/demo/$SKU_ID/` (Windows)
 
 ## Output Format
 
