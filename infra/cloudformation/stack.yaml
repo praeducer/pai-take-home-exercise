@@ -4,7 +4,7 @@ Description: "PAI Packaging Automation PoC — S3 buckets, IAM role, Budget alar
 Parameters:
   BudgetEmail:
     Type: String
-    Default: "paul@example.com"
+    Default: "paul@modular.earth"
     Description: "Email address for budget alarm notifications"
 
 Resources:
