@@ -32,7 +32,7 @@ htmlcov/
 
 # Cache
 .cache/
-~/.cache/pai-pipeline/
+# Note: ~/.cache/pai-pipeline/ is the LOCAL disk cache — not tracked by git (outside repo)
 
 # Environment / secrets
 .env

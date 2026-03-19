@@ -152,7 +152,7 @@ Foundation  Core     Quality  CI/CD    Docs/Demo  Enhancements
 
 ## SA Deliverables (Read-Only Reference)
 
-Full SA artifacts are in `C:\dev\solutions-architecture-agent\outputs\eng-2026-003\`:
+Full SA artifacts (local only, not committed to this repo):
 - `knowledge_base/requirements.json` — FR-001 through FR-015, SC-001 through SC-006
 - `knowledge_base/architecture.json` — C-001 through C-012, WA scores (6.8/10)
 - `knowledge_base/security_review.json` — STRIDE threats, IAM design
