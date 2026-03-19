@@ -38,8 +38,8 @@ DRY_RUN_PIXEL = bytes(
 )
 
 
-def _cache_key(prompt: str, width: int, height: int, model_id: str) -> str:
-    content = f"{prompt}|{width}|{height}|{model_id}"
+def _cache_key(prompt: str, width: int, height: int, model_id: str, negative_prompt: str = "") -> str:
+    content = f"{prompt}|{width}|{height}|{model_id}|{negative_prompt}"
     return hashlib.sha256(content.encode()).hexdigest()
 
 
@@ -60,6 +60,7 @@ def generate_image(
     model_tier: str = "dev",
     dry_run: bool = False,
     profile: str = "pai-exercise",
+    negative_prompt: str = "",
 ) -> bytes:
     """Generate image via Bedrock. Returns PNG bytes. Falls back to lower tier on throttling."""
     if dry_run or os.environ.get("PAI_DRY_RUN"):
@@ -72,7 +73,7 @@ def generate_image(
     if "titan" in model_id and (width, height) != (1024, 1024):
         width, height = 1024, 1024
 
-    key = _cache_key(prompt, width, height, model_id)
+    key = _cache_key(prompt, width, height, model_id, negative_prompt)
     cached = _get_cached(key)
     if cached:
         print(f"    [cache hit] {key[:16]}...")
@@ -81,20 +82,38 @@ def generate_image(
     session = boto3.Session(profile_name=profile, region_name="us-east-1")
     client = session.client("bedrock-runtime")
 
-    body = json.dumps(
-        {
-            "taskType": "TEXT_IMAGE",
-            "textToImageParams": {"text": prompt},
-            "imageGenerationConfig": {
-                "width": width,
-                "height": height,
-                "quality": "standard",
-                "numberOfImages": 1,
-            },
-        }
-    )
-
     for attempt in range(3):
+        if "titan" in model_id:
+            body = json.dumps(
+                {
+                    "taskType": "TEXT_IMAGE",
+                    "textToImageParams": {"text": prompt},
+                    "imageGenerationConfig": {
+                        "width": width,
+                        "height": height,
+                        "quality": "standard",
+                        "numberOfImages": 1,
+                    },
+                }
+            )
+        else:
+            # Nova Canvas — premium quality, negative prompts, cfgScale
+            text_params: dict = {"text": prompt}
+            if negative_prompt:
+                text_params["negativeText"] = negative_prompt
+            body = json.dumps(
+                {
+                    "taskType": "TEXT_IMAGE",
+                    "textToImageParams": text_params,
+                    "imageGenerationConfig": {
+                        "width": width,
+                        "height": height,
+                        "quality": "premium",
+                        "numberOfImages": 1,
+                        "cfgScale": 7.5,
+                    },
+                }
+            )
         try:
             response = client.invoke_model(modelId=model_id, body=body)
             result = json.loads(response["body"].read())
@@ -109,7 +128,7 @@ def generate_image(
                 continue
             if attempt == 2 and model_tier != "dev":
                 # Fall back to dev tier if higher tier is throttled
-                return generate_image(prompt, aspect_ratio, "dev", False, profile)
+                return generate_image(prompt, aspect_ratio, "dev", False, profile, negative_prompt)
             raise
 
     raise RuntimeError(f"Image generation failed after 3 attempts for model {model_id}")
