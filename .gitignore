@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+.installed.cfg
+lib/
+lib64/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Cache
+.cache/
+~/.cache/pai-pipeline/
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.p12
+*.key
+credentials.json
+.aws/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Generated outputs (large binaries — download from S3 for demo)
+outputs/demo/
+outputs/runs/
+
+# Keep outputs directory structure
+!outputs/.gitkeep
+!outputs/runs/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Temporary
+*.tmp
+*.bak

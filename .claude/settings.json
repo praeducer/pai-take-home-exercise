@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$FILE\" == *.py ]]; then ruff check \"$FILE\" --quiet && echo \"[lint] $FILE OK\" || echo \"[lint] $FILE has issues — run ruff check $FILE to see details\"; fi'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'CMD=\"$CLAUDE_TOOL_INPUT_COMMAND\"; if echo \"$CMD\" | grep -qE \"(delete-stack|s3 rb|s3 rm --recursive|iam:Delete|DeleteBucket)\"; then echo \"[guard] BLOCKED: Destructive AWS command detected. Add --confirm to the task description if intentional.\"; exit 1; fi'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'if [ -d tests ] && ls tests/test_*.py 2>/dev/null | head -1 | grep -q test; then python -m pytest tests/ -q --tb=no 2>&1 | tail -3 && echo \"[tests] Suite passed\" || echo \"[tests] WARNING: Some tests failed — review before marking complete\"; else echo \"[tests] No tests yet — skipping test gate\"; fi'"
+          }
+        ]
+      }
+    ]
+  }
+}

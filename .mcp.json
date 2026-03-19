@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "aws-iac": {
+      "command": "uv",
+      "args": ["tool", "run", "awslabs.aws-iac-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "pai-exercise",
+        "AWS_REGION": "us-east-1",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    }
+  }
+}
