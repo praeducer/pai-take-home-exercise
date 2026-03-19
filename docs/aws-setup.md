@@ -60,11 +60,12 @@ aws sts get-caller-identity --profile pai-exercise
 
 Bedrock models auto-enable on first invocation. No console enablement page is needed.
 
-- **Amazon models** (Nova Canvas, Titan V2): auto-enable on first `InvokeModel` call.
+- **Amazon models** (Nova Canvas, Titan V2): auto-enable on first `InvokeModel` call — no
+  action required.
 - **Anthropic Claude Sonnet 4.6**: has an AWS Marketplace product ID. The IAM policy below
-  includes `aws-marketplace:Subscribe` so the auto-enablement works on first invocation.
-  First-time users may be prompted to submit brief use case details in the AWS console
-  the first time Claude is invoked from this account.
+  includes `aws-marketplace:Subscribe` so auto-enablement fires on first invocation.
+  First-time use in a new account may trigger a one-time use case form from Anthropic
+  in the AWS console before the first Claude invocation succeeds.
 
 Confirm models are visible in the catalog:
 
@@ -96,7 +97,10 @@ Paste this exactly into the JSON tab in Step 1 above.
     {
       "Sid": "BedrockInvokeModels",
       "Effect": "Allow",
-      "Action": "bedrock:InvokeModel",
+      "Action": [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream"
+      ],
       "Resource": [
         "arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-canvas-v1:0",
         "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-image-generator-v2:0",
@@ -110,23 +114,28 @@ Paste this exactly into the JSON tab in Step 1 above.
       "Resource": "*"
     },
     {
-      "Sid": "S3PipelineOperations",
+      "Sid": "S3PipelineBucketActions",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": [
+        "arn:aws:s3:::pai-assets-input-*",
+        "arn:aws:s3:::pai-packaging-output-*"
+      ]
+    },
+    {
+      "Sid": "S3PipelineObjectActions",
       "Effect": "Allow",
       "Action": [
         "s3:GetObject",
-        "s3:PutObject",
-        "s3:ListBucket",
-        "s3:HeadObject"
+        "s3:PutObject"
       ],
       "Resource": [
-        "arn:aws:s3:::pai-assets-input-*",
         "arn:aws:s3:::pai-assets-input-*/*",
-        "arn:aws:s3:::pai-packaging-output-*",
         "arn:aws:s3:::pai-packaging-output-*/*"
       ]
     },
     {
-      "Sid": "CloudFormationStack",
+      "Sid": "CloudFormation",
       "Effect": "Allow",
       "Action": [
         "cloudformation:CreateStack",
@@ -137,17 +146,12 @@ Paste this exactly into the JSON tab in Step 1 above.
         "cloudformation:DescribeStackResources",
         "cloudformation:GetTemplate",
         "cloudformation:ListStackResources",
+        "cloudformation:ValidateTemplate",
         "cloudformation:CreateChangeSet",
         "cloudformation:DescribeChangeSet",
         "cloudformation:ExecuteChangeSet",
         "cloudformation:DeleteChangeSet"
       ],
-      "Resource": "arn:aws:cloudformation:us-east-1:730007904340:stack/pai-exercise*"
-    },
-    {
-      "Sid": "CloudFormationValidate",
-      "Effect": "Allow",
-      "Action": "cloudformation:ValidateTemplate",
       "Resource": "*"
     },
     {
@@ -201,9 +205,7 @@ Paste this exactly into the JSON tab in Step 1 above.
       "Sid": "BudgetsForAlarm",
       "Effect": "Allow",
       "Action": [
-        "budgets:CreateBudget",
         "budgets:ModifyBudget",
-        "budgets:DeleteBudget",
         "budgets:ViewBudget"
       ],
       "Resource": "*"
@@ -245,16 +247,32 @@ Paste this exactly into the JSON tab in Step 1 above.
 
 | Statement | What It Covers | Why |
 |-----------|---------------|-----|
-| `BedrockInvokeModels` | Call Nova Canvas, Titan V2, Claude Sonnet 4.6 | Pipeline image generation and text reasoning |
-| `BedrockListModels` | List available foundation models | G-001 verification, `/health-check` skill |
-| `S3PipelineOperations` | Read input assets, write output images and manifests | Core pipeline S3 I/O |
-| `CloudFormationStack` | Create/update/delete/describe the `pai-exercise` stack | `/deploy` and `/teardown` skills |
-| `CloudFormationValidate` | Validate template syntax before deploy | Pre-deploy safety check |
-| `IAMForCloudFormation` | CloudFormation creates `PaiPipelineRole` with `CAPABILITY_IAM` | Required for `aws cloudformation deploy --capabilities CAPABILITY_IAM` |
-| `S3BucketManagement` | CloudFormation creates the two S3 buckets with Block Public Access | Required for bucket resource creation in stack |
-| `BudgetsForAlarm` | CloudFormation creates `$25` monthly budget alarm | Cost guard |
-| `MarketplaceForAnthropicAutoEnablement` | Claude Sonnet 4.6 has a Marketplace product ID; Subscribe enables auto-enablement on first invocation | Required for Anthropic model first use in this account |
-| `DenyDestructive` | Explicit deny on object deletion, user/key creation, model training, org actions | Blast-radius limit; prevents accidental data loss or privilege escalation |
+| `BedrockInvokeModels` | `InvokeModel` + `InvokeModelWithResponseStream` on all 3 model ARNs | `anthropic[bedrock]` uses streaming by default; both actions required |
+| `BedrockListModels` | List all foundation models | G-001 verification, `/health-check` skill |
+| `S3PipelineBucketActions` | `ListBucket` on input and output bucket ARNs | Bucket-level action — must target bucket ARN not object ARN |
+| `S3PipelineObjectActions` | `GetObject` + `PutObject` on objects in both buckets | Object-level actions — must target `bucket/*` ARN |
+| `CloudFormation` | All stack + changeset operations | `Resource: "*"` required: `DescribeChangeSet`/`ExecuteChangeSet` target changeset ARNs (different format from stack ARNs); `ValidateTemplate` never supports resource-level scoping |
+| `IAMForCloudFormation` | Create/manage `PaiPipelineRole` and instance profile | `CAPABILITY_NAMED_IAM` required when stack defines a named IAM role |
+| `S3BucketManagement` | Create/configure S3 buckets with Block Public Access + versioning + lifecycle | CloudFormation creates these bucket resources |
+| `BudgetsForAlarm` | Create and view the `$25` monthly budget alarm | `CreateBudget` and `DeleteBudget` are not real IAM actions — create/update both use `ModifyBudget` |
+| `MarketplaceForAnthropicAutoEnablement` | Subscribe to Anthropic's Marketplace product | Required for Claude Sonnet 4.6 first-invocation auto-enablement |
+| `DenyDestructive` | Explicit deny: object deletion, new user/key creation, model training, org actions | Blast-radius limit |
+
+---
+
+## CloudFormation Deploy Command
+
+Use `CAPABILITY_NAMED_IAM` (not just `CAPABILITY_IAM`) because the stack defines a role with
+a custom name (`PaiPipelineRole`):
+
+```bash
+aws cloudformation deploy \
+  --stack-name pai-exercise \
+  --template-file infra/cloudformation/stack.yaml \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --profile pai-exercise \
+  --region us-east-1
+```
 
 ---
 
