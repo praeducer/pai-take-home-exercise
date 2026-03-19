@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report process
+    url: https://github.com/praeducer/pai-take-home-exercise/security/policy
+    about: Please use the repository security policy for vulnerability reporting.
