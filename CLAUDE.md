@@ -23,16 +23,16 @@ After each phase, save a context snapshot as `phase-0N-complete.md` in the repo 
 
 ## Current State
 
-**Phase 1 — In Progress.** Tasks 1, 2, 7, 8, 9, 10, 11 complete. Tasks 3, 4, 5, 6 remaining.
+**Phase 5 — Complete. v1.0.0 tagged.**
 
 | Task | Status | Notes |
 |------|--------|-------|
 | 1 — GitHub repo | ✅ Done | `praeducer/pai-take-home-exercise` public, remote set |
 | 2 — Directory structure | ✅ Done | All dirs exist |
-| 3 — venv + requirements.txt | ❌ Remaining | Deps installed globally; `.venv` and `requirements.txt` not yet created |
-| 4 — CloudFormation stack.yaml | ❌ Remaining | `infra/cloudformation/` is empty |
-| 5 — Deploy stack | ❌ Remaining | Depends on Task 4 |
-| 6 — G-001 Bedrock gate | ❌ Remaining | Depends on Task 5 |
+| 3 — venv + requirements.txt | ✅ Done | `.venv` and `requirements.txt` created |
+| 4 — CloudFormation stack.yaml | ✅ Done | `infra/cloudformation/stack.yaml` deployed |
+| 5 — Deploy stack | ✅ Done | Stack deployed, CREATE_COMPLETE |
+| 6 — G-001 Bedrock gate | ✅ Done | Nova Canvas + Claude Sonnet 4.6 verified |
 | 7 — CLAUDE.md | ✅ Done | |
 | 8 — 8 skills scaffolded | ✅ Done | All 8 in `.claude/skills/` |
 | 9 — .claude/settings.json hooks | ✅ Done | ruff lint, pytest stop hook, destructive guard |
@@ -41,11 +41,12 @@ After each phase, save a context snapshot as `phase-0N-complete.md` in the repo 
 
 ### Environment Status (as of 2026-03-19)
 
-- AWS credentials: `pai-exercise` profile configured → account `730007904340` verified
-- uv: `0.10.11` via WinGet — accessible in Git Bash
-- Python deps: `boto3`, `anthropic`, `Pillow`, `jsonschema` installed globally (no venv yet)
-- GitHub: authenticated as `praeducer`, token scopes `repo workflow read:org gist`
-- CloudFormation stack: **NOT deployed**
+- AWS credentials: `pai-exercise` profile configured → account `<ACCOUNT_ID>` verified
+- Python: 3.12, all deps installed in `.venv` (requirements.txt pinned)
+- CloudFormation stack: `pai-exercise` — CREATE_COMPLETE, us-east-1
+- Bedrock: Nova Canvas (`amazon.nova-canvas-v1:0`) + Claude Sonnet 4.6 verified
+- GitHub Actions CI: green (lint + 35 tests + pip-audit)
+- v1.0.0 tag: pushed to praeducer/pai-take-home-exercise
 
 ---
 
@@ -85,7 +86,7 @@ After each phase, save a context snapshot as `phase-0N-complete.md` in the repo 
 | `/run-tests` | Execute full test suite | Read-only |
 | `/generate-demo` | Run pipeline with all demo SKU briefs | Disable model invocation |
 
-Skill stubs are in `.claude/skills/`. They are filled in progressively through Phases 2–5.
+Skills are fully implemented in `.claude/skills/` as of Phase 5.
 
 ---
 
@@ -113,7 +114,7 @@ Configured in `.mcp.json`. Activate after Phase 1 Task 9 (`uv` must be installed
 ```bash
 # Verify AWS auth before any Bedrock/S3 work:
 aws sts get-caller-identity --profile pai-exercise
-# Expected: account 730007904340
+# Expected: account <ACCOUNT_ID>
 
 # CloudFormation stack:
 aws cloudformation describe-stacks --stack-name pai-exercise --profile pai-exercise
