@@ -1,6 +1,7 @@
 import os
 import time
 import uuid
+from pathlib import Path
 
 from .asset_manager import build_output_key, upload_output
 from .image_generator import MODEL_TIERS, generate_image
@@ -56,14 +57,20 @@ def run_pipeline(
                 overlay_content = build_text_overlay_content(brief, product)
                 composited = apply_overlay(image_bytes, overlay_content, aspect_ratio)
 
+                # Always save locally to outputs/results/
+                local_dir = Path("outputs/results") / sku_id / region / format_name
+                local_dir.mkdir(parents=True, exist_ok=True)
+                local_path = local_dir / f"{product_slug}.png"
+                local_path.write_bytes(composited)
+
                 if not dry_run and bucket:
                     s3_key = build_output_key(sku_id, region, format_name, f"{product_slug}.png")
                     upload_output(bucket, s3_key, composited, profile)
                     output_keys.append(s3_key)
-                    print(f"  + {product['name']} ({product.get('flavor', '')}) {aspect_ratio} -> {s3_key}")
+                    print(f"  + {product['name']} ({product.get('flavor', '')}) {aspect_ratio} -> {local_path} + s3://{bucket}/{s3_key}")
                 else:
                     print(
-                        f"  + {product['name']} ({product.get('flavor', '')}) {aspect_ratio} [dry-run]"
+                        f"  + {product['name']} ({product.get('flavor', '')}) {aspect_ratio} -> {local_path} [dry-run, no S3]"
                     )
 
             except Exception as e:
