@@ -76,7 +76,7 @@ These **cannot be automated** and must be done by Paul before or during implemen
    - Access Key ID and Secret: from IAM console → Security Credentials
    - Region: `us-east-1`
    - Output format: `json`
-   - Verify: `aws sts get-caller-identity --profile pai-exercise` → returns account `730007904340`
+   - Verify: `aws sts get-caller-identity --profile pai-exercise` → returns account `<ACCOUNT_ID>`
 
 3. **Before GitHub repo creation:** Verify `gh auth status` shows `praeducer`
    - If not authenticated: `gh auth login --web`

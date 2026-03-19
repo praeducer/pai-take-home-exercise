@@ -45,6 +45,7 @@ def run_pipeline(
     model_id = MODEL_TIERS.get(model_tier, MODEL_TIERS["dev"])
 
     output_keys = []
+    images_written = 0
     errors = []
 
     for product in brief["products"]:
@@ -68,6 +69,7 @@ def run_pipeline(
                     local_dir.mkdir(parents=True, exist_ok=True)
                     local_path = local_dir / f"{product_slug}.png"
                     local_path.write_bytes(composited)
+                    images_written += 1  # Count local writes
 
                     if bucket:
                         s3_key = build_output_key(sku_id, region, format_name, f"{product_slug}.png")
@@ -92,7 +94,8 @@ def run_pipeline(
         {
             "run_id": run_id,
             "models_used": [model_id],
-            "images_generated": len(output_keys),
+            "images_generated": images_written,
+            "s3_uploads": len(output_keys),
             "dry_run": dry_run,
             "errors": errors,
             "duration_seconds": duration,
@@ -104,7 +107,7 @@ def run_pipeline(
         dry_run=dry_run,
     )
 
-    print(f"\nPipeline complete: {len(output_keys)} images, {duration}s")
+    print(f"\nPipeline complete: {images_written} images, {duration}s")
     return output_keys
 
 

@@ -35,7 +35,7 @@ uv --version 2>/dev/null || echo "uv not installed — run: pip install uv"
 
 ## Expected Healthy Output
 
-- AWS identity: account `730007904340`
+- AWS identity: account `<ACCOUNT_ID>`
 - Stack: `CREATE_COMPLETE` or `UPDATE_COMPLETE`
 - Bedrock: 3 models listed with access enabled
 - Python: `3.12.x`, deps OK

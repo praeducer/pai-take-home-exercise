@@ -4,7 +4,7 @@
 **Stack name:** pai-exercise
 **Input bucket name:** pai-exercise-paiassetsinputbucket-vssunkaugllr
 **Output bucket name:** pai-exercise-paipackagingoutputbucket-l4u1ootx9lac
-**IAM role ARN:** arn:aws:iam::730007904340:role/pai-pipeline-role
+**IAM role ARN:** arn:aws:iam::<ACCOUNT_ID>:role/pai-pipeline-role
 **Region:** us-east-1
 **AWS profile:** pai-exercise
 

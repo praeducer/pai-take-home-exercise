@@ -10,11 +10,11 @@
 
 Complete ALL of these before starting Phase 1:
 
-- [ ] AWS account available (ID: `730007904340`)
+- [ ] AWS account available (ID: `<ACCOUNT_ID>`)
 - [ ] Bedrock model access — console enablement page retired; models auto-enable on first invocation.
   - Amazon models (`nova-canvas-v1:0`, `titan-image-generator-v2:0`): no pre-action needed.
   - `anthropic.claude-sonnet-4-6`: IAM user policy must include `aws-marketplace:Subscribe` (see `docs/aws-setup.md`).
-- [ ] `aws configure --profile pai-exercise` complete → `aws sts get-caller-identity --profile pai-exercise` returns `730007904340`
+- [ ] `aws configure --profile pai-exercise` complete → `aws sts get-caller-identity --profile pai-exercise` returns `<ACCOUNT_ID>`
 - [ ] `gh auth status` shows authenticated as `praeducer` → if not: `gh auth login --web`
 - [ ] Python 3.12 available: `python --version` returns `3.12.x`
 - [ ] `uv` available for MCP server execution: `uv --version` → if not: `pip install uv` (Node.js is NOT required — AWS MCP servers use `uv tool run`)

@@ -9,7 +9,7 @@ For a high-level security and assistant-governance overview, see `docs/security-
 
 ## Step 1 — Create IAM User in AWS Console
 
-1. Sign in to **AWS Console** → account `730007904340` → **IAM** → **Users** → **Create user**
+1. Sign in to **AWS Console** → account `<ACCOUNT_ID>` → **IAM** → **Users** → **Create user**
 2. **User name:** `pai-exercise`
 3. **Provide user access to the AWS Management Console:** leave unchecked (programmatic only)
 4. Click **Next**
@@ -51,8 +51,8 @@ aws sts get-caller-identity --profile pai-exercise
 # Expected output:
 # {
 #     "UserId": "AIDA...",
-#     "Account": "730007904340",
-#     "Arn": "arn:aws:iam::730007904340:user/pai-exercise"
+#     "Account": "<ACCOUNT_ID>",
+#     "Arn": "arn:aws:iam::<ACCOUNT_ID>:user/pai-exercise"
 # }
 ```
 
@@ -177,8 +177,8 @@ Paste this exactly into the JSON tab in Step 1 above.
         "iam:GetInstanceProfile"
       ],
       "Resource": [
-        "arn:aws:iam::730007904340:role/pai-exercise-*",
-        "arn:aws:iam::730007904340:instance-profile/pai-exercise-*"
+        "arn:aws:iam::<ACCOUNT_ID>:role/pai-exercise-*",
+        "arn:aws:iam::<ACCOUNT_ID>:instance-profile/pai-exercise-*"
       ]
     },
     {
@@ -303,8 +303,8 @@ After adding the secrets, verify they work before relying on CI/CD deploys:
 2. Select the deploy workflow (`deploy.yml`).
 3. Click **Run workflow** on the `main` branch (or the branch configured in the workflow).
 4. In the workflow logs, confirm the AWS auth step succeeds and run identity output shows:
-  - Account: `730007904340`
-  - ARN: `arn:aws:iam::730007904340:user/pai-exercise`
+  - Account: `<ACCOUNT_ID>`
+  - ARN: `arn:aws:iam::<ACCOUNT_ID>:user/pai-exercise`
 5. If the run fails with credential errors, re-check `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` values in repository secrets.
 
 ---
