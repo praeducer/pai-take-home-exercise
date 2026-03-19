@@ -87,7 +87,7 @@ Hooks are configured in `.claude/settings.json`:
 
 - **PostToolUse (Edit/Write):** Auto-lints edited `.py` files with `ruff check`
 - **Stop:** Runs `pytest tests/ -q` — warns if tests fail (blocking enabled after Phase 4)
-- **PreToolUse (Bash):** Blocks destructive AWS commands (`delete-stack`, `s3 rb`, `s3 rm --recursive`) without explicit `--confirm` flag in the command
+- **PreToolUse (Bash):** Requires explicit confirmation for destructive AWS commands and sensitive secret-read operations
 
 ---
 
@@ -96,7 +96,7 @@ Hooks are configured in `.claude/settings.json`:
 Configured in `.mcp.json`. Activate after Phase 1 Task 9 (`uv` must be installed).
 
 - **aws-iac:** CloudFormation and IaC assistance via `uv tool run awslabs.aws-iac-mcp-server@latest`
-- **aws-knowledge:** AWS documentation search (remote HTTP via fastmcp proxy — configure during Phase 1)
+- **aws-knowledge:** Optional AWS documentation search server if configured for this repo
 
 ---
 

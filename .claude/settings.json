@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'CMD=\"$CLAUDE_TOOL_INPUT_COMMAND\"; if echo \"$CMD\" | grep -qE \"(delete-stack|s3 rb|s3 rm --recursive|iam:Delete|DeleteBucket)\"; then echo \"[guard] BLOCKED: Destructive AWS command detected. Add --confirm to the task description if intentional.\"; exit 1; fi'"
+            "command": "bash -c 'CMD=\"$CLAUDE_TOOL_INPUT_COMMAND\"; if echo \"$CMD\" | grep -qE \"(delete-stack|s3 rb|s3 rm --recursive|iam:Delete|DeleteBucket)\"; then if echo \"$CMD\" | grep -q -- \"--confirm\"; then echo \"[guard] WARN: destructive command allowed due to --confirm\"; else echo \"[guard] BLOCKED: Destructive AWS command detected. Add --confirm if intentional.\"; exit 1; fi; fi; if echo \"$CMD\" | grep -qE \"(cat|type|Get-Content|gc)\\s+.*(secrets/|secrets\\\\|\\.env|\\.aws/credentials|\\.aws/config)|printenv|^env$|aws configure get aws_secret_access_key\"; then if echo \"$CMD\" | grep -q -- \"--confirm-secret-read\"; then echo \"[guard] WARN: sensitive read allowed due to --confirm-secret-read\"; else echo \"[guard] BLOCKED: Sensitive secret read/exfil command detected. Add --confirm-secret-read if explicitly requested.\"; exit 1; fi; fi'"
           }
         ]
       }

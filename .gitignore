@@ -36,12 +36,21 @@ htmlcov/
 # Environment / secrets
 .env
 .env.*
+.envrc
+*.env
+!.env.example
+.claude/settings.local.json
+.python-version
 *.pem
 *.p12
 *.key
 credentials.json
 *_credentials.csv
+*_accessKeys.csv
 .aws/
+secrets/*
+!secrets/.gitignore
+!secrets/README.md
 
 # IDE
 .idea/
