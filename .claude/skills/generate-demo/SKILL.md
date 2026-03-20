@@ -26,7 +26,7 @@ OUTPUT_BUCKET=$(aws cloudformation describe-stacks \
   --query 'Stacks[0].Outputs[?OutputKey==`OutputBucketName`].OutputValue' \
   --output text)
 
-for brief in inputs/demo_briefs/*.json; do
+for brief in inputs/demo_briefs/trail-mix-us.json inputs/demo_briefs/trail-mix-latam.json inputs/demo_briefs/trail-mix-apac.json inputs/demo_briefs/trail-mix-eu.json; do
   echo "Processing: $brief"
   PAI_OUTPUT_BUCKET="$OUTPUT_BUCKET" \
   python -m src.pipeline.run_pipeline "$brief" \
@@ -39,12 +39,12 @@ done
 
 ## Demo Briefs
 
-| File | Product | Region | Attributes |
-|------|---------|--------|-----------|
-| `trail-mix-us.json` | Organic Trail Mix (Original, Dark Chocolate) | us-west | organic, non-gmo, high-protein, gluten-free |
-| `granola-bar-latam.json` | Granola Energy Bar (Honey Oat, Tropical Fruit) | latam | whole-grain, natural-flavors, no-preservatives |
-| `energy-drink-apac.json` | Natural Energy Drink (Original Citrus, Green Tea) | apac | natural-caffeine, vitamin-b, sugar-free |
-| `protein-bar-eu.json` | Plant Protein Bar (Vanilla Almond, Cocoa Hazelnut) | eu | vegan, 20g-protein, gluten-free |
+| File | Product | Region | Cultural direction |
+|------|---------|--------|--------------------|
+| `trail-mix-us.json` | Alpine Harvest Trail Mix (Original, Dark Chocolate) | us-west | Pacific NW earth tones, outdoor lifestyle |
+| `trail-mix-latam.json` | Alpine Harvest Trail Mix (Original, Tropical Edition) | latam | Golden yellows, terracotta, tropical energy |
+| `trail-mix-apac.json` | Alpine Harvest Trail Mix (Original, Mango Coconut) | apac | Vibrant tropical, warm oranges, natural ingredients |
+| `trail-mix-eu.json` | Alpine Harvest Trail Mix (Original, Dark Berry) | eu | Scandinavian kraft, moss green, Nordic botanical |
 
 ## Expected Output
 

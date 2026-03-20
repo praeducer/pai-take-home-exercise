@@ -22,7 +22,7 @@ aws s3 ls --profile pai-exercise | grep pai
 
 echo "=== Bedrock Model Access ==="
 aws bedrock list-foundation-models --region us-east-1 --profile pai-exercise \
-  --query 'modelSummaries[?contains(modelId, `nova-canvas`) || contains(modelId, `titan-image`) || contains(modelId, `claude-sonnet`)].{id:modelId,access:modelLifecycleStatus}' \
+  --query 'modelSummaries[?contains(modelId, `nova-canvas`) || contains(modelId, `titan-image`) || contains(modelId, `claude-sonnet`) || contains(modelId, `claude-opus`)].{id:modelId,access:modelLifecycleStatus}' \
   --output table 2>/dev/null || echo "Bedrock check failed"
 
 echo "=== Python Environment ==="
@@ -36,7 +36,7 @@ uv --version 2>/dev/null || echo "uv not installed — run: pip install uv"
 ## Expected Healthy Output
 
 - AWS identity: account `<ACCOUNT_ID>`
-- Stack: `CREATE_COMPLETE` or `UPDATE_COMPLETE`
-- Bedrock: 3 models listed with access enabled
+- Stack: `CREATE_COMPLETE` or `UPDATE_COMPLETE` (note: `UPDATE_ROLLBACK_COMPLETE` is also a valid functional state)
+- Bedrock: 4 models listed (nova-canvas-v1, titan-image-v2, claude-sonnet-4-6, claude-opus-4-6-v1)
 - Python: `3.12.x`, deps OK
 - uv: version string

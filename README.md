@@ -48,7 +48,7 @@ inputs/sample_sku_brief.json
   prompt_constructor.py  — build image prompt + overlay content
          │
          ▼
-  text_reasoning.py      — Claude Sonnet 4.6 prompt enhancement
+  text_reasoning.py      — Claude Sonnet 4.6 brand profile (once/brief) + prompt enhancement
          │
          ▼
   image_generator.py     — Bedrock invoke (Nova Canvas / Titan V2)
@@ -69,7 +69,7 @@ inputs/sample_sku_brief.json
 |-----------|-----------|---------|
 | Image generation | `amazon.nova-canvas-v1:0` (final/iterate tier) | Primary packaging image model |
 | Dev/test generation | `amazon.titan-image-generator-v2:0` | $0.01/image, fast iteration |
-| Text reasoning | `anthropic.claude-sonnet-4-6` via `anthropic[bedrock]` | Prompt enhancement |
+| Text reasoning | `anthropic.claude-sonnet-4-6` | Brand profile (tool_use) + prompt enhancement |
 | Text overlay | Pillow (PIL) | Title strip, attribute badges, regulatory footer |
 | Storage | Amazon S3 | Outputs at `{sku_id}/{region}/{format}/{product}.png` |
 | Manifests | JSON (S3 + local `outputs/runs/`) | Run history, cost tracking |
@@ -220,7 +220,7 @@ Full technical rationale: [`docs/design-decisions.md`](docs/design-decisions.md)
 
 ```
 ├── src/pipeline/          # All pipeline modules
-├── tests/                 # 35 unit tests + 1 integration test
+├── tests/                 # 39 unit tests + 3 skipped AWS live tests + 1 integration
 ├── infra/cloudformation/  # CloudFormation stack
 ├── inputs/                # SKU brief examples + 4 demo briefs
 ├── outputs/               # Generated images + manifests
