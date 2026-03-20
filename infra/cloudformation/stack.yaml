@@ -1,5 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "PAI Packaging Automation PoC — S3 buckets, IAM role, Budget alarm"
+Description: >
+  PAI Packaging Automation PoC — S3 buckets, IAM role, Budget alarm.
+  Note: !Sub, !Ref, and !GetAtt are standard CloudFormation YAML intrinsic-
+  function shorthand tags, not linting errors.
 
 Parameters:
   BudgetEmail:
@@ -12,6 +15,9 @@ Resources:
   # ---------- S3: Input Assets Bucket ----------
   PaiAssetsInputBucket:
     Type: AWS::S3::Bucket
+    # Retain protects uploaded input assets if the stack is ever deleted.
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -22,15 +28,15 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         RestrictPublicBuckets: true
-      LifecycleConfiguration:
-        Rules:
-          - Id: ExpireNoncurrentVersions
-            Status: Enabled
-            NoncurrentVersionExpirationInDays: 90
+      # LifecycleConfiguration removed: NoncurrentVersionExpirationInDays is a
+      # no-op on this bucket because versioning is not enabled here.
 
   # ---------- S3: Output Packaging Images Bucket ----------
   PaiPackagingOutputBucket:
     Type: AWS::S3::Bucket
+    # Retain protects generated images from accidental delete-stack.
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -108,6 +114,12 @@ Resources:
   # ---------- Budget: $25/month alarm ----------
   PaiBudgetAlarm:
     Type: AWS::Budgets::Budget
+    # MUST be Retain: AWS Budgets API rejects CF updates when the internal
+    # tracking ID drifts from what CF recorded at creation time, producing
+    # HTTP 400 "budget with same name but different internalId". Retain
+    # prevents CF from ever attempting to replace or delete this resource.
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       Budget:
         BudgetName: pai-exercise-budget
