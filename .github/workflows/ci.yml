@@ -26,5 +26,4 @@ jobs:
         run: pytest tests/ -v -m "not integration" --tb=short
 
       - name: Security audit
-        run: pip-audit --requirement requirements.txt --severity high
-        continue-on-error: false
+        run: pip-audit -r requirements.txt
