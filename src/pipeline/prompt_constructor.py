@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from src.pipeline.text_reasoning import _DEFAULT_BRAND_PROFILE
+
 _UNIVERSAL_NEGATIVE = (
     "text, words, letters, writing, numbers, labels with text, typography, "
     "watermarks, blurry, deformed, multiple packages, duplicate, clone, "
@@ -99,16 +101,6 @@ _FORMAT_BUILDERS = {
     "9:16": _build_back_label_prompt,
     "16:9": _build_wraparound_prompt,
 }
-
-_DEFAULT_BRAND_PROFILE: dict = {
-    "photography_style": "clean studio product photography, professional lighting",
-    "color_palette": "neutral earth tones, white background",
-    "regional_visual_elements": "",
-    "background_description": "clean white studio background, soft shadows",
-    "packaging_hero_shot": "front-facing centered product shot",
-    "negative_guidance": "",
-}
-
 
 def build_image_prompt(
     brief: dict,
