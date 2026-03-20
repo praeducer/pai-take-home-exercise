@@ -23,4 +23,5 @@ jobs:
             --stack-name pai-exercise \
             --template-file infra/cloudformation/stack.yaml \
             --capabilities CAPABILITY_NAMED_IAM \
-            --region us-east-1
+            --region us-east-1 \
+            --no-fail-on-empty-changeset
