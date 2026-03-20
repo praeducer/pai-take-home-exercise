@@ -65,7 +65,7 @@ These are the externally visible deliverables. An interviewer reviewing your sub
 **What it is:** Runs on every push. Validates code quality (ruff), correctness (pytest), and security (pip-audit). This is the primary quality gate.
 
 🔗 **All CI runs:** [https://github.com/praeducer/pai-take-home-exercise/actions/workflows/ci.yml](https://github.com/praeducer/pai-take-home-exercise/actions/workflows/ci.yml)
-🔗 **Latest run (verified green):** [https://github.com/praeducer/pai-take-home-exercise/actions/runs/23345611420](https://github.com/praeducer/pai-take-home-exercise/actions/runs/23345611420)
+🔗 **Latest run (verified green):** [https://github.com/praeducer/pai-take-home-exercise/actions/runs/23347151853](https://github.com/praeducer/pai-take-home-exercise/actions/runs/23347151853)
 🔗 **Workflow definition:** [https://github.com/praeducer/pai-take-home-exercise/blob/main/.github/workflows/ci.yml](https://github.com/praeducer/pai-take-home-exercise/blob/main/.github/workflows/ci.yml)
 
 **Expected in the latest run:**
@@ -94,7 +94,7 @@ pip-audit -r requirements.txt
 **What it is:** Runs on every push to `main`. Deploys the CloudFormation stack (`pai-exercise`) to us-east-1. Requires `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` GitHub Secrets.
 
 🔗 **All Deploy runs:** [https://github.com/praeducer/pai-take-home-exercise/actions/workflows/deploy.yml](https://github.com/praeducer/pai-take-home-exercise/actions/workflows/deploy.yml)
-🔗 **Latest run (verified success):** [https://github.com/praeducer/pai-take-home-exercise/actions/runs/23345611398](https://github.com/praeducer/pai-take-home-exercise/actions/runs/23345611398)
+🔗 **Latest run (verified success):** [https://github.com/praeducer/pai-take-home-exercise/actions/runs/23347151881](https://github.com/praeducer/pai-take-home-exercise/actions/runs/23347151881)
 🔗 **Workflow definition:** [https://github.com/praeducer/pai-take-home-exercise/blob/main/.github/workflows/deploy.yml](https://github.com/praeducer/pai-take-home-exercise/blob/main/.github/workflows/deploy.yml)
 
 **Expected:** All deploy steps green.
