@@ -27,3 +27,14 @@ def test_brand_profile_dry_run_no_api_call():
     profile = generate_brand_profile(brief, dry_run=True)
     assert isinstance(profile, dict)
     assert len(profile) >= 6
+
+
+def test_brand_profile_default_is_complete():
+    """All 6 required keys must be present and be strings in _DEFAULT_BRAND_PROFILE."""
+    from src.pipeline.text_reasoning import _DEFAULT_BRAND_PROFILE
+    required = {
+        "photography_style", "color_palette", "regional_visual_elements",
+        "background_description", "packaging_hero_shot", "negative_guidance",
+    }
+    assert required == set(_DEFAULT_BRAND_PROFILE.keys())
+    assert all(isinstance(v, str) for v in _DEFAULT_BRAND_PROFILE.values())
