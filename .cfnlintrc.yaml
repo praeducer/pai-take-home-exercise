@@ -1,0 +1,12 @@
+# .cfnlintrc.yaml — CloudFormation linter configuration
+# cfn-lint understands all CF intrinsic function shorthand (!Sub, !Ref, !GetAtt)
+# and validates them correctly. Generic YAML linters (yamllint, VS Code YAML
+# extension) do not understand CF-specific YAML tags and emit false
+# "unresolved tag" warnings. Use cfn-lint, not generic YAML linters, to
+# validate CloudFormation templates.
+templates:
+  - infra/cloudformation/stack.yaml
+regions:
+  - us-east-1
+include_checks:
+  - W
