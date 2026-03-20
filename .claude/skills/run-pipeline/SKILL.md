@@ -5,6 +5,18 @@ argument-hint: "<sku-brief-path> [--model-tier dev|iterate|final] [--dry-run]"
 allowed-tools: Read, Bash
 ---
 
+## PAI Exercise Requirements Covered
+
+| Requirement | Status |
+|------------|--------|
+| SKU brief JSON input (products, region, audience, attributes) | ✅ Validated against `src/schemas/sku_brief_schema.json` |
+| ≥2 products/flavors per run | ✅ Processes all products in `brief.products[]` |
+| 3 aspect ratios (1:1, 9:16, 16:9) | ✅ front_label, back_label, wraparound per product |
+| Text/attributes/regulatory on packaging | ✅ Title strip, attribute badges, footer via Pillow |
+| S3 organized by SKU/Region/Format | ✅ `{sku_id}/{region}/{format}/{product_slug}.png` |
+| Input assets from S3 (if present) | ✅ `asset_manager.check_s3_asset()` checks input bucket first |
+| Manifest/approval logging | ✅ JSON manifest → S3 + `outputs/runs/` |
+
 Run the PAI pipeline for the given SKU brief JSON file.
 
 ## Arguments
