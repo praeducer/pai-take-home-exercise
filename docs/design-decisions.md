@@ -102,4 +102,4 @@ Technical decisions and their rationale for interviewers who want to go deeper.
 
 **Decision:** `PaiPipelineRole` uses explicit deny for `s3:Delete*` and `iam:*` in addition to minimum required allows.
 
-**Why:** Explicit denies cannot be overridden by Allow policies at the resource level, providing defense-in-depth. Even if an attacker obtained temporary credentials for this role, they could not delete pipeline outputs or escalate IAM privileges. Design follows STRIDE threat model findings from the SA security review (`C:\dev\solutions-architecture-agent\outputs\eng-2026-003\knowledge_base\security_review.json`).
+**Why:** Explicit denies cannot be overridden by Allow policies at the resource level, providing defense-in-depth. Even if an attacker obtained temporary credentials for this role, they could not delete pipeline outputs or escalate IAM privileges. Design follows STRIDE threat model findings from the SA security review.

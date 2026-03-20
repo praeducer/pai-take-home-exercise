@@ -81,6 +81,8 @@ outputs/debug_test.png
 *.log
 logs/
 
-# Temporary
+# Temporary — repo-local tmp/ for scratch files (not system /tmp)
+tmp/*
+!tmp/.gitkeep
 *.tmp
 *.bak
