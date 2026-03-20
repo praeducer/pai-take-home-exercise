@@ -44,7 +44,7 @@ Open three files:
 
 ## Step 3: Run the Pipeline (2 minutes)
 
-```
+```bash
 /run-pipeline inputs/sample_sku_brief.json --model-tier dev
 ```
 
@@ -90,7 +90,7 @@ Point to the `.github/workflows/` directory for the specific SHA-pinned action v
 A: Only available in us-west-2. Nova Canvas is in us-east-1 — the only region with both Nova Canvas and Claude Sonnet 4.6. Benchmarks are in `docs/design-decisions.md`.
 
 **Q: Why Claude Code skills instead of a CLI?**
-A: Zero UI development time. The hooks enforce code quality automatically — ruff on every `.py` edit, pytest on stop. It's an AI-native interface that aligns with GenStudio's product direction.
+A: Zero UI development time. The hooks enforce code quality automatically — ruff on every `.py` edit, pytest on stop. It's an AI-native interface.
 
 **Q: What would production look like?**
 A: Lambda + API Gateway for auto-scaling, PostgreSQL on RDS for run history, Rekognition for content moderation, OIDC instead of static credentials in CI. All documented in `BACKLOG.md`.
