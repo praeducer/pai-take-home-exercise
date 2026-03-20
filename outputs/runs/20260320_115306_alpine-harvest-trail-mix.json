@@ -1,0 +1,13 @@
+{
+  "run_id": "d87362f4-759e-431e-9031-a4a65268391b",
+  "timestamp": "2026-03-20T15:53:06.109814+00:00",
+  "sku_id": "alpine-harvest-trail-mix",
+  "region": "apac",
+  "models_used": [
+    "amazon.nova-canvas-v1:0"
+  ],
+  "images_generated": 6,
+  "dry_run": false,
+  "errors": [],
+  "duration_seconds": 4.58
+}
