@@ -58,7 +58,7 @@ The PAI Packaging Automation PoC is a multi-step generative AI pipeline that tra
 | Test coverage | 46 unit tests across 8 test files |
 | CI/CD | GitHub Actions — lint (ruff) + test (pytest) + security audit (pip-audit) + CloudFormation deploy |
 | Demo output | 24 images = 4 regions x 2 products x 3 formats |
-| Total PoC cost | ~$2.10 |
+| Total PoC cost | ~$2.21 |
 
 ---
 
@@ -101,7 +101,7 @@ The pipeline makes **3 AI calls per image** (not just 1), plus a shared brand pr
 - **Output:** JSON with 6 keys: `photography_style`, `color_palette`, `regional_visual_elements`, `background_description`, `packaging_hero_shot`, `negative_guidance`
 - **Why:** Ensures ALL images in a run (typically 6: 2 products x 3 formats) share a coherent visual identity. Without this step, each image would be generated independently, producing inconsistent brand representation. Tool use eliminates JSON parse errors vs. the old markdown-fence-stripping approach.
 - **Fallback:** Returns a default neutral profile on any error — the pipeline never fails due to brand profiling.
-- **Cost:** ~$0.003 per brief
+- **Cost:** ~$0.006 per brief (~550 input tokens × $0.003/1K + ~280 output tokens × $0.015/1K)
 
 ### 5.2 Step 2: Format-Specific Prompt Construction (Per Image, Zero Cost)
 
@@ -234,7 +234,7 @@ sequenceDiagram
 | Security | 8/10 | IAM least-privilege + explicit Deny; SSE-S3; Block Public Access; pip-audit in CI; SHA-pinned Actions |
 | Reliability | 7/10 | 3-attempt retry with backoff; tier fallback; per-image error isolation; graceful fallbacks |
 | Performance Efficiency | 8/10 | SHA-256 disk cache (~1950x speedup); Nova Canvas premium; brand profile once per run |
-| Cost Optimization | 9/10 | 3 model tiers; Budget alarm at $20/$25; disk caching; dry-run mode; PoC total ~$2.10 |
+| Cost Optimization | 9/10 | 3 model tiers; Budget alarm at $20/$25; disk caching; dry-run mode; PoC total ~$2.21 |
 | Sustainability | 7/10 | Caching reduces API calls; dev tier for iteration; on-demand only |
 
 **Overall: 8.0/10** — improved from initial proposal baseline of 6.8/10.
@@ -265,11 +265,11 @@ sequenceDiagram
 | Item | Unit Cost | PoC Volume | Total |
 |------|-----------|------------|-------|
 | Nova Canvas (premium quality) | $0.08/image | 24 demo images | $1.92 |
-| Claude Sonnet 4.6 (brand profile, tool_use) | ~$0.003/call | 4 brief runs | ~$0.01 |
-| Claude Sonnet 4.6 (prompt enhancement) | ~$0.001/call | 24 enhancement calls | ~$0.02 |
+| Claude Sonnet 4.6 (brand profile, tool_use) | ~$0.006/call | 4 brief runs | ~$0.02 |
+| Claude Sonnet 4.6 (prompt enhancement) | ~$0.006/call | 24 enhancement calls | ~$0.15 |
 | Amazon Titan V2 (dev tier iteration) | $0.01/image | ~12 dev images | ~$0.12 |
 | S3 storage + requests | negligible | ~500 operations | <$0.01 |
-| **Total PoC cost** | | | **~$2.10** |
+| **Total PoC cost** | | | **~$2.21** |
 
 ### Production Cost Projection
 
@@ -278,11 +278,11 @@ At 1,000 regional packaging variants per month (typical for a mid-size global CP
 | Item | Monthly Cost |
 |------|-------------|
 | Nova Canvas premium generation (1,000 images) | $80 |
-| Claude Sonnet 4.6 brand profiling (~100 briefs, tool_use) | ~$0.30 |
-| Claude Sonnet 4.6 prompt enhancement (1,000 calls) | ~$1 |
+| Claude Sonnet 4.6 brand profiling (~100 briefs, tool_use) | ~$0.60 |
+| Claude Sonnet 4.6 prompt enhancement (1,000 calls) | ~$6 |
 | S3 storage + data transfer | ~$5 |
 | CloudFormation + IAM | $0 |
-| **Total projected monthly** | **~$86** |
+| **Total projected monthly** | **~$92** |
 
 **Comparison:** Traditional agency creative fees for packaging design range from $50-100/hour per variant, with typical turnaround of 2-5 business days. At 1,000 variants/month, agency costs range from $5,000-50,000/month depending on complexity.
 

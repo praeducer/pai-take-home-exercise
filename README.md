@@ -164,8 +164,8 @@ Full schema: `src/schemas/sku_brief_schema.json`
 | Tier | Model | Cost/image | Use case |
 |------|-------|-----------|---------|
 | `dev` | `amazon.titan-image-generator-v2:0` | $0.01 | Fast iteration, CI-safe |
-| `iterate` | `amazon.nova-canvas-v1:0` | $0.04 | Quality review |
-| `final` | `amazon.nova-canvas-v1:0` | $0.04 | Demo/production output |
+| `iterate` | `amazon.nova-canvas-v1:0` | $0.08 (premium) | Quality review |
+| `final` | `amazon.nova-canvas-v1:0` | $0.08 (premium) | Demo/production output |
 
 ---
 

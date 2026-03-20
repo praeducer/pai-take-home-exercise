@@ -1,7 +1,7 @@
 # Technical Architecture Brief (Pre-Implementation)
 ## PAI Take-Home Exercise — Product Packaging Variant Generator
 
-> **Note:** This is the pre-implementation architecture brief (v2.0, 2026-03-18), written before coding began. It captures the planned architecture, estimates, and risk assessment. For the actual post-implementation architecture reflecting what was built, see [`docs/solution-architecture.md`](../../docs/solution-architecture.md). Key differences: WA scores improved from 6.8→8.0, actual cost was ~$2.10 (vs. ~$5 estimated), brand profiling uses Sonnet 4.6 tool_use (vs. planned Opus 4.6 raw JSON).
+> **Note:** This is the pre-implementation architecture brief (v2.0, 2026-03-18), written before coding began. It captures the planned architecture, estimates, and risk assessment. For the actual post-implementation architecture reflecting what was built, see [`docs/solution-architecture.md`](../../docs/solution-architecture.md). Key differences: WA scores improved from 6.8→8.0, actual cost was ~$2.21 (vs. ~$5 estimated), brand profiling uses Sonnet 4.6 tool_use (vs. planned Opus 4.6 raw JSON).
 
 **Prepared for**: Adobe PAI Interview Panel (Senior Engineers + Hiring Manager)
 **Engagement**: PAI Packaging Automation PoC

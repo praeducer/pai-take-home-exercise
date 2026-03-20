@@ -203,7 +203,7 @@ All 4 share `"sku_id": "alpine-harvest-trail-mix"` → S3 paths: `alpine-harvest
 **Key sections to skim:**
 - Section 5: Multi-Step Generation Pipeline — explains the 3-AI-call chain per image
 - Section 8: Well-Architected Assessment — 8.0/10 overall, per-pillar breakdown
-- Section 10: Cost Model — $2.10 PoC, ~$86/month at production scale
+- Section 10: Cost Model — $2.21 PoC, ~$92/month at production scale
 
 ☐ Document renders in GitHub with all 11 section headers visible
 
@@ -382,7 +382,7 @@ aws bedrock list-foundation-models --region us-east-1 --profile pai-exercise \
 |----------|------|--------|------|
 | `amazon.nova-canvas-v1:0` | Primary image generation | ACTIVE | $0.08/image (premium) |
 | `amazon.titan-image-generator-v2:0` | Dev/fallback image generation | ACTIVE | $0.01/image |
-| `anthropic.claude-sonnet-4-6` | Brand profile (tool_use, once/brief) + prompt enhancement | ACTIVE | ~$0.003/brief |
+| `anthropic.claude-sonnet-4-6` | Brand profile (tool_use, once/brief) + prompt enhancement | ACTIVE | ~$0.006/call |
 | `anthropic.claude-opus-4-6-v1` | Available (unused — Sonnet handles all text reasoning) | ACTIVE | ~$0.01/call |
 
 ☐ All 4 models show ACTIVE
@@ -441,7 +441,7 @@ Use these when presenting the system. Each point is directly verifiable in the s
 | **Multi-step AI chain** — Sonnet 4.6 via tool_use for brand direction, Sonnet 4.6 for prompt refinement, Nova Canvas for generation | `text_reasoning.py` + `prompt_constructor.py` source; Section 5 of SA doc |
 | **Production-quality engineering** — 42 tests, CI/CD, CloudFormation IaC, least-privilege IAM | CI run (Section 1.3); Test files (Section 1.6); IAM role (Section 3.5) |
 | **AI-native development** — Claude Code IS the interface; Claude wrote all the code | Skills in `.claude/skills/`; CLAUDE.md explaining the workflow |
-| **Cost-conscious design** — 3 model tiers, disk caching, $2.10 for 24 production images | `image_generator.py` MODEL_TIERS + CACHE_DIR; SA doc Section 10 |
+| **Cost-conscious design** — 3 model tiers, disk caching, $2.21 for 24 production images | `image_generator.py` MODEL_TIERS + CACHE_DIR; SA doc Section 10 |
 
 ### Anticipated questions
 
