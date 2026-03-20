@@ -13,7 +13,7 @@
 
 This document describes the architecture of a fully functional AI-native packaging automation pipeline that accepts a structured SKU brief (JSON) and produces multi-format, regionally adapted packaging images using AWS Bedrock generative AI models. The system generates front labels (1:1), back labels (9:16), and wraparound designs (16:9) for multiple product variants, organized in S3 by SKU, region, and format. Every line of Python, every test, every CloudFormation resource, and every CI/CD workflow in the repository was written by Claude (Sonnet 4.6 / Opus 4.6) under human architectural direction — demonstrating the same AI-assisted development philosophy that the pipeline itself embodies.
 
-The implementation takes an AI-native approach at every layer: Claude Code custom skills replace traditional CLI frameworks as the user interface; Claude Opus 4.6 generates brand-specific visual direction to ensure coherence across all images in a run; Claude Sonnet 4.6 enhances prompts for better Bedrock image model compatibility; and Amazon Nova Canvas generates high-fidelity packaging photography. The entire system is an exercise in "dog-fooding" — the AI tool that runs the pipeline is the same AI that designed and built it.
+The implementation takes an AI-native approach at every layer: Claude Code custom skills replace traditional CLI frameworks as the user interface; Claude Sonnet 4.6 generates brand-specific visual direction via structured tool use to ensure coherence across all images in a run; Claude Sonnet 4.6 also enhances prompts for better Bedrock image model compatibility; and Amazon Nova Canvas generates high-fidelity packaging photography. The entire system is an exercise in "dog-fooding" — the AI tool that runs the pipeline is the same AI that designed and built it.
 
 **Business Value:** A global CPG manufacturer generating hundreds of regional packaging variants monthly can reduce design agency engagement from days to minutes. This PoC demonstrates **$0.20 for 24 high-quality packaging variants** — front label, back label, and wraparound — across 4 global markets (US West, LATAM, APAC, EU), with culturally adapted visual direction generated per region. At production scale of 1,000 variants/month, the projected cost is ~$95/month versus traditional agency creative fees of $5,000-50,000/month — a 98%+ cost reduction per variant.
 
@@ -38,7 +38,7 @@ A global consumer packaged goods (CPG) manufacturer — modeled here as **Alpine
 | Goal | How This PoC Demonstrates It |
 |------|------------------------------|
 | **Accelerate time-to-market** | Single pipeline run generates 6 variants (2 products x 3 formats) in under 60 seconds; 4 regional runs complete in under 3 minutes |
-| **Ensure brand consistency** | Brand profile generated once per brief (via Claude Opus 4.6) ensures all 6 images share coherent visual identity — photography style, color palette, and cultural elements |
+| **Ensure brand consistency** | Brand profile generated once per brief (via Claude Sonnet 4.6 tool use) ensures all 6 images share coherent visual identity — photography style, color palette, and cultural elements |
 | **Maximize local relevance** | `region`, `audience`, and `cultural_context` fields in each SKU brief drive regionally adapted prompts and visual direction |
 | **Optimize packaging ROI** | GenAI generation at $0.008-0.08/variant vs. hours of manual agency work per variant |
 | **Gain actionable insights** | JSON manifest per run captures model IDs, generation duration, errors, and run metadata for analytics |
@@ -54,7 +54,7 @@ The PAI Packaging Automation PoC is a multi-step generative AI pipeline that tra
 | Pipeline modules | 8 Python modules in `src/pipeline/` |
 | Interface | 8 Claude Code custom skills (zero argparse) |
 | Image models | Nova Canvas v1:0 (primary), Titan Image V2:0 (dev/fallback) |
-| Text reasoning models | Claude Opus 4.6 (brand profile), Claude Sonnet 4.6 (prompt enhancement) |
+| Text reasoning models | Claude Sonnet 4.6 (brand profile via tool_use + prompt enhancement) |
 | Test coverage | 43 unit tests across 8 test files |
 | CI/CD | GitHub Actions — lint (ruff) + test (pytest) + security audit (pip-audit) + CloudFormation deploy |
 | Demo output | 24 images = 4 regions x 2 products x 3 formats |
@@ -70,7 +70,7 @@ The PAI Packaging Automation PoC is a multi-step generative AI pipeline that tra
 graph LR
     A[Brand Manager] -->|"SKU Brief JSON\n(region + audience\n+ cultural context)"| B["Claude Code Skills\n/run-pipeline"]
     B --> C["Pipeline Orchestrator\nrun_pipeline.py"]
-    C -->|"1x per brief"| D["Claude Opus 4.6\nBrand Profile Generator"]
+    C -->|"1x per brief"| D["Claude Sonnet 4.6\nBrand Profile Generator\n(tool_use)"]
     C -->|"1x per image"| E["Claude Sonnet 4.6\nPrompt Enhancement"]
     C -->|"1x per image"| F["Amazon Nova Canvas\nImage Generation"]
     C --> G["Pillow\nText Overlay\nCompositing"]
@@ -96,12 +96,12 @@ The pipeline makes **3 AI calls per image** (not just 1), plus a shared brand pr
 
 ### 5.1 Step 1: Brand Profile Generation (Once per Brief)
 
-- **Model:** Claude Opus 4.6 (`anthropic.claude-opus-4-6`) — selected for superior creative direction capability
+- **Model:** Claude Sonnet 4.6 (`anthropic.claude-sonnet-4-6`) via structured tool use — `tool_choice: {"type": "tool", "name": "set_brand_profile"}` guarantees schema-conformant JSON output without brittle markdown parsing
 - **Input:** `brand_name`, `packaging_type`, `region`, `audience`, `cultural_context` from the SKU brief
 - **Output:** JSON with 6 keys: `photography_style`, `color_palette`, `regional_visual_elements`, `background_description`, `packaging_hero_shot`, `negative_guidance`
-- **Why:** Ensures ALL images in a run (typically 6: 2 products x 3 formats) share a coherent visual identity. Without this step, each image would be generated independently, producing inconsistent brand representation.
+- **Why:** Ensures ALL images in a run (typically 6: 2 products x 3 formats) share a coherent visual identity. Without this step, each image would be generated independently, producing inconsistent brand representation. Tool use eliminates JSON parse errors vs. the old markdown-fence-stripping approach.
 - **Fallback:** Returns a default neutral profile on any error — the pipeline never fails due to brand profiling.
-- **Cost:** ~$0.01 per brief
+- **Cost:** ~$0.003 per brief
 
 ### 5.2 Step 2: Format-Specific Prompt Construction (Per Image, Zero Cost)
 
@@ -129,7 +129,7 @@ All SKU brief fields are sanitized via `_sanitize()` before interpolation to pre
 
 - **Model:** Amazon Nova Canvas v1:0 (primary) or Titan Image V2:0 (dev fallback)
 - **Quality setting:** `"premium"` for Nova Canvas (vs. `"standard"` default) — produces better composition, lighting, and detail
-- **cfgScale:** 7.5 — balanced between creative freedom and prompt adherence
+- **cfgScale:** 8.5 — higher prompt adherence reduces AI text hallucination on packaging surfaces
 - **Negative prompts:** Passed via `negativeText` parameter (Nova Canvas native feature)
 - **Dimensions:** 1024x1024 (1:1), 576x1024 (9:16), 1024x576 (16:9) — all native Nova Canvas resolutions
 - **Retry:** 3 attempts with exponential backoff (2^n seconds); falls back to dev tier on persistent throttling
@@ -155,8 +155,8 @@ sequenceDiagram
     participant User as Brand Manager
     participant CC as Claude Code
     participant Orch as run_pipeline.py
-    participant Opus as Claude Opus 4.6
-    participant Sonnet as Claude Sonnet 4.6
+    participant Sonnet4b as Claude Sonnet 4.6 (brand)
+    participant Sonnet as Claude Sonnet 4.6 (enhance)
     participant NC as Nova Canvas
     participant Pillow as Pillow Overlay
     participant S3 as S3 Output
@@ -164,13 +164,13 @@ sequenceDiagram
     User->>CC: /run-pipeline trail-mix-us.json
     CC->>Orch: run_pipeline(sku_brief_path)
     Orch->>Orch: parse_sku_brief() — validate JSON schema
-    Orch->>Opus: generate_brand_profile(brief) — once per brief
-    Opus-->>Orch: {photography_style, color_palette, regional_visual_elements, ...}
+    Orch->>Sonnet4b: generate_brand_profile(brief) — once per brief, tool_use
+    Sonnet4b-->>Orch: {photography_style, color_palette, regional_visual_elements, ...}
     loop For each product x aspect_ratio (6 iterations)
         Orch->>Orch: build_image_prompt() -> (positive, negative)
         Orch->>Sonnet: enhance_prompt_with_reasoning(base_prompt)
         Sonnet-->>Orch: enhanced_prompt
-        Orch->>NC: invoke_model(enhanced_prompt, negativeText, premium, cfgScale=7.5)
+        Orch->>NC: invoke_model(enhanced_prompt, negativeText, premium, cfgScale=8.5)
         NC-->>Orch: image_bytes (PNG)
         Orch->>Pillow: apply_overlay(image_bytes, content, aspect_ratio)
         Pillow-->>Orch: composited_bytes (PNG)
@@ -220,7 +220,7 @@ sequenceDiagram
 | Text Overlay | Pillow | 3 layouts (1:1/9:16/16:9), RGBA alpha compositing |
 | Output Manager | JSON + boto3 S3 | Manifest: run_id, models, duration, errors |
 | Text Reasoning | `anthropic[bedrock]` | Sonnet 4.6 prompt enhancement (non-critical fallback path) |
-| Brand Profiling | `anthropic[bedrock]` | Opus 4.6 visual direction; once per brief for consistency |
+| Brand Profiling | `anthropic[bedrock]` | Sonnet 4.6 via tool_use; structured JSON guaranteed; once per brief |
 | IaC | CloudFormation YAML | S3×2, IAM role, Budget alarm |
 | CI/CD | GitHub Actions | Lint + test + pip-audit + CloudFormation deploy |
 
@@ -265,7 +265,7 @@ sequenceDiagram
 | Item | Unit Cost | PoC Volume | Total |
 |------|-----------|------------|-------|
 | Nova Canvas (premium quality) | $0.08/image | 24 demo images | $1.92 |
-| Claude Opus 4.6 (brand profile) | ~$0.01/call | 4 brief runs | ~$0.04 |
+| Claude Sonnet 4.6 (brand profile, tool_use) | ~$0.003/call | 4 brief runs | ~$0.01 |
 | Claude Sonnet 4.6 (prompt enhancement) | ~$0.001/call | 24 enhancement calls | ~$0.02 |
 | Amazon Titan V2 (dev tier iteration) | $0.01/image | ~12 dev images | ~$0.12 |
 | S3 storage + requests | negligible | ~500 operations | <$0.01 |
@@ -278,11 +278,11 @@ At 1,000 regional packaging variants per month (typical for a mid-size global CP
 | Item | Monthly Cost |
 |------|-------------|
 | Nova Canvas premium generation (1,000 images) | $80 |
-| Claude Opus 4.6 brand profiling (~100 briefs) | ~$1 |
+| Claude Sonnet 4.6 brand profiling (~100 briefs, tool_use) | ~$0.30 |
 | Claude Sonnet 4.6 prompt enhancement (1,000 calls) | ~$1 |
 | S3 storage + data transfer | ~$5 |
 | CloudFormation + IAM | $0 |
-| **Total projected monthly** | **~$87** |
+| **Total projected monthly** | **~$86** |
 
 **Comparison:** Traditional agency creative fees for packaging design range from $50-100/hour per variant, with typical turnaround of 2-5 business days. At 1,000 variants/month, agency costs range from $5,000-50,000/month depending on complexity.
 
@@ -306,4 +306,4 @@ Full design decisions and trade-offs: [`docs/design-decisions.md`](design-decisi
 
 ---
 
-*Document prepared by Paul Prae using Claude Code (Claude Opus 4.6 + Sonnet 4.6).*
+*Document prepared by Paul Prae using Claude Code (Claude Sonnet 4.6).*
