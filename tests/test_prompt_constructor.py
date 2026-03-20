@@ -71,3 +71,17 @@ def test_brand_profile_incorporated_in_prompt(sample_brief, sample_product):
     }
     pos, _ = build_image_prompt(sample_brief, sample_product, "1:1", brand_profile=profile)
     assert "macro closeup" in pos or "electric blue" in pos
+
+
+def test_front_label_prompt_is_narrative(sample_brief, sample_product):
+    """Prompt should be narrative prose, not key-value label pairs."""
+    prompt, _ = build_image_prompt(sample_brief, sample_product, "1:1")
+    assert "Color palette:" not in prompt
+    assert "Photography style:" not in prompt
+    assert "Background:" not in prompt
+
+
+def test_negative_prompt_blocks_packaging_text(sample_brief, sample_product):
+    """Negative prompt must explicitly block packaging text generation."""
+    _, neg = build_image_prompt(sample_brief, sample_product, "1:1")
+    assert "printed text" in neg.lower() or "packaging text" in neg.lower()

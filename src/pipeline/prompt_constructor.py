@@ -3,9 +3,11 @@ from __future__ import annotations
 from src.pipeline.text_reasoning import _DEFAULT_BRAND_PROFILE
 
 _UNIVERSAL_NEGATIVE = (
-    "text, words, letters, writing, numbers, labels with text, typography, "
-    "watermarks, blurry, deformed, multiple packages, duplicate, clone, "
-    "low quality, cartoon, illustration, CGI render, artificial, fake"
+    "text, words, letters, writing, numbers, printed text, packaging text, "
+    "product labels with text, typography, handwriting, captions, watermarks, "
+    "blurry, deformed, multiple packages, duplicate, clone, "
+    "low quality, cartoon, illustration, CGI render, artificial, fake, "
+    "hands, people, cluttered background, busy scene"
 )
 
 
@@ -20,80 +22,76 @@ def _product_display(product: dict) -> str:
 
 
 def _build_front_label_prompt(brief: dict, product: dict, brand_profile: dict) -> str:
-    """1:1 — Single package centered, front-facing hero shot, clean studio."""
+    """1:1 — Single package hero shot, clean studio, front-facing."""
     display = _product_display(product)
-    packaging_type = _sanitize(brief.get("packaging_type", "product packaging"))
-    attributes = ", ".join(_sanitize(a, 50) for a in brief.get("attributes", []))
-    audience = _sanitize(brief.get("audience", ""))
-    bg = _sanitize(brand_profile.get("background_description", "clean white studio background"))
-    colors = _sanitize(brand_profile.get("color_palette", "neutral tones"))
-    photo_style = _sanitize(brand_profile.get("photography_style", "professional studio lighting"))
-    hero = _sanitize(brand_profile.get("packaging_hero_shot", "front-facing centered"))
+    pkg = _sanitize(brief.get("packaging_type", "stand-up resealable pouch"))
+    attrs = ", ".join(_sanitize(a, 50) for a in brief.get("attributes", [])[:3])
+    bg = _sanitize(brand_profile.get("background_description", "clean white studio background, soft diffused shadows"))
+    colors = _sanitize(brand_profile.get("color_palette", "neutral earth tones"))
+    photo_style = _sanitize(brand_profile.get("photography_style", "professional studio photography, soft box lighting"))
+    hero = _sanitize(brand_profile.get("packaging_hero_shot", "front-facing centered, single package"))
     regional = _sanitize(brand_profile.get("regional_visual_elements", ""))
 
-    return (
-        f"Professional product packaging photograph of {display} in a {packaging_type}. "
-        f"{hero}, single package only. "
-        f"Color palette: {colors}. "
-        f"Background: {bg}. "
-        f"Photography style: {photo_style}. "
-        f"Key product attributes: {attributes}. "
-        f"Target audience: {audience}. "
-        + (f"Visual elements: {regional}. " if regional else "")
-        + "Square format, clean commercial product photography."
+    scene = (
+        f"{photo_style} of a {display} {pkg}, {hero}. "
+        f"The packaging features {colors} with a {bg}. "
     )
+    if attrs:
+        scene += f"Product conveys {attrs}. "
+    if regional:
+        scene += f"Subtle {regional} visual accents. "
+    scene += "Square format commercial product photography, no text or labels visible."
+    return scene
 
 
 def _build_back_label_prompt(brief: dict, product: dict, brand_profile: dict) -> str:
-    """9:16 — 3/4 angle, ingredients/texture visible, portrait, lifestyle context."""
+    """9:16 — Three-quarter angle, ingredients context, portrait lifestyle."""
     display = _product_display(product)
-    packaging_type = _sanitize(brief.get("packaging_type", "product packaging"))
-    description = _sanitize(product.get("description", ""))
+    pkg = _sanitize(brief.get("packaging_type", "stand-up resealable pouch"))
+    desc = _sanitize(product.get("description", ""), 150)
     region = _sanitize(brief.get("region", ""))
-    bg = _sanitize(brand_profile.get("background_description", "natural lifestyle setting"))
+    bg = _sanitize(brand_profile.get("background_description", "natural lifestyle surface"))
     colors = _sanitize(brand_profile.get("color_palette", "natural tones"))
     photo_style = _sanitize(brand_profile.get("photography_style", "lifestyle product photography"))
     regional = _sanitize(brand_profile.get("regional_visual_elements", ""))
 
-    return (
-        f"Lifestyle product photography of {display} in a {packaging_type}, three-quarter angle view. "
-        f"Product ingredients and texture visible around the package. "
-        f"Portrait orientation. "
-        f"{description}. "
-        f"Region: {region}. "
-        f"Color palette: {colors}. "
-        f"Background: {bg}. "
-        f"Photography style: {photo_style}. "
-        + (f"Regional visual elements: {regional}. " if regional else "")
-        + "Vertical format, aspirational lifestyle context."
+    scene = (
+        f"{photo_style} of a {display} {pkg} at a three-quarter angle. "
+        f"{colors} color scheme. "
+        f"Ingredients and natural elements softly scattered around the package on a {bg}. "
     )
+    if desc:
+        scene += f"Product character: {desc}. "
+    if regional:
+        scene += f"{regional} contextual elements in the background. "
+    scene += f"Portrait format for {region} market, aspirational and clean, no text overlay."
+    return scene
 
 
 def _build_wraparound_prompt(brief: dict, product: dict, brand_profile: dict) -> str:
-    """16:9 — Wide panoramic, ingredients scattered around package, brand story."""
+    """16:9 — Wide panoramic, brand story, ingredients tableau."""
     display = _product_display(product)
-    packaging_type = _sanitize(brief.get("packaging_type", "product packaging"))
-    description = _sanitize(product.get("description", ""))
-    attributes = ", ".join(_sanitize(a, 50) for a in brief.get("attributes", []))
-    audience = _sanitize(brief.get("audience", ""))
-    bg = _sanitize(brand_profile.get("background_description", "textured natural surface"))
+    pkg = _sanitize(brief.get("packaging_type", "stand-up resealable pouch"))
+    desc = _sanitize(product.get("description", ""), 150)
+    attrs = ", ".join(_sanitize(a, 50) for a in brief.get("attributes", [])[:3])
+    bg = _sanitize(brand_profile.get("background_description", "textured natural wood surface"))
     colors = _sanitize(brand_profile.get("color_palette", "warm earth tones"))
-    photo_style = _sanitize(brand_profile.get("photography_style", "editorial product photography"))
+    photo_style = _sanitize(brand_profile.get("photography_style", "editorial overhead photography"))
     regional = _sanitize(brand_profile.get("regional_visual_elements", ""))
 
-    return (
-        f"Wide panoramic brand story photograph featuring {display} in a {packaging_type}. "
-        f"Package prominently placed, with product ingredients and natural elements artfully scattered around it. "
-        f"Horizontal wide-angle composition. "
-        f"{description}. "
-        f"Brand story: {attributes}. "
-        f"Target audience: {audience}. "
-        f"Color palette: {colors}. "
-        f"Background: {bg}. "
-        f"Photography style: {photo_style}. "
-        + (f"Regional visual motifs: {regional}. " if regional else "")
-        + "Cinematic horizontal format, premium editorial quality."
+    scene = (
+        f"Wide cinematic {photo_style} of {display} {pkg} centered in frame. "
+        f"Product ingredients artfully arranged around the package — nuts, dried fruits, natural elements. "
+        f"{colors} palette, {bg}. "
     )
+    if desc:
+        scene += f"Brand story: {desc}. "
+    if attrs:
+        scene += f"Product values: {attrs}. "
+    if regional:
+        scene += f"{regional} visual motifs woven into composition. "
+    scene += "Horizontal panoramic format, premium editorial quality, no visible text."
+    return scene
 
 
 _FORMAT_BUILDERS = {

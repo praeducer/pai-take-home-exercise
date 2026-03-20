@@ -37,7 +37,7 @@ aws cloudformation describe-stacks \
   --profile pai-exercise
 ```
 
-Save outputs to `phase-01-complete.md` if Phase 1 deployment.
+Verify stack outputs match expected resources.
 
 ## Expected Outputs
 

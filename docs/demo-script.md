@@ -80,7 +80,7 @@ Open GitHub Actions tab: github.com/praeducer/pai-take-home-exercise/actions
 > in CI), pip-audit with severity high. CloudFormation deploy runs on main merge. SHA-pinned
 > actions close the supply chain risk from the threat model."
 
-Point to `phase-04-complete.md` in the repo root for the specific SHA hashes used.
+Point to the `.github/workflows/` directory for the specific SHA-pinned action versions.
 
 ---
 

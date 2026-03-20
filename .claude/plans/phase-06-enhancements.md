@@ -10,12 +10,12 @@
 
 ## Prerequisites Checklist
 
-- [ ] `phase-05-complete.md` exists — repo published, README complete, CI/CD green, v1.0.0 tagged
+- [ ] v1.0.0 tagged — repo published, README complete, CI/CD green
 - [ ] `github.com/praeducer/pai-take-home-exercise` is demo-ready (verified by Paul)
 - [ ] At least 2 hours of time before interview
 - [ ] All Phase 1-5 tests still passing: `pytest tests/ -v -m "not integration"`
 
-**Load prior context:** Read `phase-01-complete.md` through `phase-05-complete.md`. Phase 6 enhancements should not break any existing functionality.
+**Load prior context:** Read `CLAUDE.md` and `00-master-plan.md`. Phase 6 enhancements should not break any existing functionality.
 
 ---
 

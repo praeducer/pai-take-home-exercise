@@ -179,7 +179,7 @@ outputs/
 │           ├── front_label/    # 1:1 (1024×1024)
 │           ├── back_label/     # 9:16 (576×1024)
 │           └── wraparound/     # 16:9 (1024×576)
-├── runs/                       # JSON manifests (committed)
+├── runs/                       # JSON manifests (latest per SKU committed)
 │   └── {timestamp}_{sku_id}.json
 └── demo/                       # Best images for README (committed)
 ```
@@ -188,45 +188,23 @@ S3 key pattern: `{sku_id}/{region}/{format}/{product_slug}.png`
 
 ---
 
-## Design Decisions
-
-| Decision | Choice | Why |
-|----------|--------|-----|
-| Primary image model | Nova Canvas (`nova-canvas-v1:0`) | Only high-quality model in us-east-1 (SD3.5 Large unavailable); TIFA 0.897, ImageReward 1.250 |
-| Dev model | Titan V2 | $0.01/image, fast for iteration; generates 1024×1024 only |
-| Text reasoning | `anthropic[bedrock]` | Cleaner messages API than raw boto3 InvokeModel |
-| Storage | Flat JSON manifests | No database overhead for PoC; PostgreSQL documented in BACKLOG |
-| Interface | Claude Code skills | Zero CLI boilerplate; AI-native developer experience |
-| IaC | CloudFormation YAML | Self-contained, no npm/Terraform; sufficient for 3 resources |
-| CI/CD | GitHub Actions | Must-have for production maturity; SHA-pinned for supply chain safety |
-| Image caching | SHA-256 content hash | ~1950x speedup on second run; avoids re-generation cost during dev |
-
-Full technical rationale: [`docs/design-decisions.md`](docs/design-decisions.md)
+Full design rationale: [`docs/design-decisions.md`](docs/design-decisions.md)
 
 ---
 
-## Assumptions and Limitations
+## Mermaid Diagrams In VS Code
 
-- **Text overlay coordinates** are tuned for English product names ≤30 characters. Other languages/lengths may need adjustment.
-- **No real regulatory compliance database** — uses synthesized placeholder footer text ("See ingredients list. For more information visit our website.").
-- **Dev tier (Titan V2)** always generates 1024×1024 regardless of aspect ratio. Non-square dimensions (576×1024, 1024×576) are only correct with Nova Canvas (`iterate`/`final` tier).
-- **Single-user PoC** — local execution, no production auto-scaling. Lambda + API Gateway is in BACKLOG.
-- **Image quality** is demonstration-grade. Not validated against real Adobe packaging brand standards.
-- **Bedrock models** auto-enable on first invocation in us-east-1 (no manual subscription required for Nova Canvas and Titan V2). Claude Sonnet 4.6 may require marketplace subscription — see `docs/aws-setup.md`.
+Mermaid rendering in Markdown preview is enabled at workspace level via `.vscode/settings.json`:
 
----
+- `"markdown.mermaid.enabled": true`
 
-## Repository Structure
+If a diagram still does not render:
 
-```
-├── src/pipeline/          # All pipeline modules
-├── tests/                 # 39 unit tests + 3 skipped AWS live tests + 1 integration
-├── infra/cloudformation/  # CloudFormation stack
-├── inputs/                # SKU brief examples + 4 demo briefs
-├── outputs/               # Generated images + manifests
-├── docs/                  # AWS setup, design decisions, demo script
-└── .github/workflows/     # CI (lint+test+audit) + deploy
-```
+1. Use VS Code's built-in preview (`Markdown: Open Preview`), not a third-party preview pane.
+2. Run `Developer: Reload Window` once to pick up workspace settings.
+3. Confirm the code fence is exactly <code>```mermaid</code>.
+
+This repo also recommends the `bierner.markdown-mermaid` extension in `.vscode/extensions.json` as a compatibility fallback.
 
 ---
 
@@ -243,13 +221,10 @@ make audit       # pip-audit security scan
 
 ## Backlog
 
-See [`BACKLOG.md`](BACKLOG.md) for items explicitly deferred from PoC scope: PostgreSQL, Lambda, QuickSight, multi-language support, content moderation, and more.
+See [`BACKLOG.md`](BACKLOG.md) for production roadmap items deferred from PoC scope.
 
 ---
 
 ## Security
 
-- IAM role uses least privilege + explicit deny on `s3:Delete*` and `iam:*`
-- GitHub Actions uses SHA-pinned actions (supply chain integrity)
-- `pip-audit --severity high` runs in every CI build
-- See [`docs/security-configuration.md`](docs/security-configuration.md)
+IAM least-privilege with explicit deny on `s3:Delete*` and `iam:*`. GitHub Actions SHA-pinned. `pip-audit` in every CI build. Full IAM policy: [`docs/aws-setup.md`](docs/aws-setup.md).

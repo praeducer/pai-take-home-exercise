@@ -92,15 +92,9 @@ Technical decisions and their rationale for interviewers who want to go deeper.
 
 ## 9. Sample Data: Why "Organic Trail Mix"?
 
-**Decision:** The sample SKU brief (`inputs/sample_sku_brief.json`) uses a fictional "Organic Trail Mix" brand with "Original" and "Dark Chocolate" variants.
+**Decision:** Fictional "Alpine Harvest" trail mix with "Original" and "Dark Chocolate" variants.
 
-**Origin:** This data was specified in `.claude/plans/phase-02-core-pipeline.md` Task 2 as the canonical example for pipeline development. The choice was deliberate:
-- **Two product variants** satisfy the exercise requirement of demonstrating multi-SKU generation
-- **Health-food category** is brand-agnostic and avoids any trademark/IP concerns
-- **Common CPG attributes** (organic, non-gmo, high-protein, gluten-free) exercise all four badge types in the text overlay
-- **"us-west" region** differs from the AWS deployment region (us-east-1) to verify region-parameterized S3 key paths work correctly
-
-No real brand or product is implied. This is a fictional example representing a typical CPG product brief.
+**Why:** Two variants satisfy multi-SKU requirement. Health-food category avoids trademark concerns. Four CPG attributes (organic, non-gmo, high-protein, gluten-free) exercise all badge types in text overlay. "us-west" region differs from deployment region (us-east-1) to verify S3 key path parameterization.
 
 ---
 

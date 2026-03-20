@@ -110,7 +110,7 @@ def generate_image(
                         "height": height,
                         "quality": "premium",
                         "numberOfImages": 1,
-                        "cfgScale": 7.5,
+                        "cfgScale": 8.5,
                     },
                 }
             )

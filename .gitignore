@@ -49,9 +49,7 @@ credentials.json
 *_credentials.csv
 *_accessKeys.csv
 .aws/
-secrets/*
-!secrets/.gitignore
-!secrets/README.md
+secrets/
 
 # IDE
 .idea/
@@ -66,10 +64,15 @@ secrets/*
 Thumbs.db
 desktop.ini
 
-# Generated outputs — runs manifests and demo images stay in repo
-# Ignore nothing under outputs/ — JSON manifests and selected PNG demo images are committed
+# Generated outputs
 outputs/preview/
 outputs/debug_test.png
+
+# Keep interview artifacts visible in git
+!outputs/results/
+!outputs/results/**
+!outputs/runs/
+!outputs/runs/**
 
 # Keep outputs directory structure
 !outputs/.gitkeep

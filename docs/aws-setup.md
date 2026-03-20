@@ -3,8 +3,6 @@
 Complete AWS console and CLI setup for the `pai-exercise` IAM user. Execute the steps below
 in order. All CLI steps run in Git Bash.
 
-For a high-level security and assistant-governance overview, see `docs/security-configuration.md`.
-
 ---
 
 ## Step 1 — Create IAM User in AWS Console
@@ -244,23 +242,6 @@ Paste this exactly into the JSON tab in Step 1 above.
 
 ---
 
-## Policy Statement Reference
-
-| Statement | What It Covers | Why |
-|-----------|---------------|-----|
-| `BedrockInvokeModels` | `InvokeModel` + `InvokeModelWithResponseStream` on all 3 model ARNs | `anthropic[bedrock]` uses streaming by default; both actions required |
-| `BedrockListModels` | List all foundation models | G-001 verification, `/health-check` skill |
-| `S3PipelineBucketActions` | `ListBucket` on input and output bucket ARNs | Bucket-level action — must target bucket ARN not object ARN |
-| `S3PipelineObjectActions` | `GetObject` + `PutObject` on objects in both buckets | Object-level actions — must target `bucket/*` ARN |
-| `CloudFormation` | All stack + changeset operations | `Resource: "*"` required: `DescribeChangeSet`/`ExecuteChangeSet` target changeset ARNs (different format from stack ARNs); `ValidateTemplate` never supports resource-level scoping |
-| `IAMForCloudFormation` | Create/manage `PaiPipelineRole` and instance profile | `CAPABILITY_NAMED_IAM` required when stack defines a named IAM role |
-| `S3BucketManagement` | Create/configure S3 buckets with Block Public Access + versioning + lifecycle | CloudFormation creates these bucket resources |
-| `BudgetsForAlarm` | Create and view the `$25` monthly budget alarm | `CreateBudget` and `DeleteBudget` are not real IAM actions — create/update both use `ModifyBudget` |
-| `MarketplaceForAnthropicAutoEnablement` | Subscribe to Anthropic's Marketplace product | Required for Claude Sonnet 4.6 first-invocation auto-enablement |
-| `DenyDestructive` | Explicit deny: object deletion, new user/key creation, model training, org actions | Blast-radius limit |
-
----
-
 ## CloudFormation Connection Test
 
 Before deploying, verify that your profile can call the CloudFormation service in `us-east-1`:
@@ -280,63 +261,4 @@ a custom name (`PaiPipelineRole`):
 
 ```bash
 aws cloudformation deploy --stack-name pai-exercise --template-file infra/cloudformation/stack.yaml --capabilities CAPABILITY_NAMED_IAM --profile pai-exercise --region us-east-1
-```
-
----
-
-## GitHub Actions Secrets (Phase 4)
-
-When GitHub Actions CI/CD is set up in Phase 4, add these secrets to the repo:
-
-1. **GitHub → praeducer/pai-take-home-exercise → Settings → Secrets and variables → Actions**
-2. Add:
-   - `AWS_ACCESS_KEY_ID` — same key as Step 2
-   - `AWS_SECRET_ACCESS_KEY` — same secret as Step 2
-
-These are used by `deploy.yml` to run `aws cloudformation deploy` from GitHub Actions.
-
-### Test GitHub Actions AWS Credentials
-
-After adding the secrets, verify they work before relying on CI/CD deploys:
-
-1. Open **GitHub → praeducer/pai-take-home-exercise → Actions**.
-2. Select the deploy workflow (`deploy.yml`).
-3. Click **Run workflow** on the `main` branch (or the branch configured in the workflow).
-4. In the workflow logs, confirm the AWS auth step succeeds and run identity output shows:
-  - Account: `<ACCOUNT_ID>`
-  - ARN: `arn:aws:iam::<ACCOUNT_ID>:user/pai-exercise`
-5. If the run fails with credential errors, re-check `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` values in repository secrets.
-
----
-
-## Environment Variables for Local Development
-
-Use a repo-root `.env` file (standard dotenv location used by most tooling). This file is gitignored in this repo.
-
-1. Create `.env` in the project root with:
-
-```bash
-AWS_PROFILE=pai-exercise
-AWS_REGION=us-east-1
-```
-
-2. Keep secrets out of `.env` (do not put access keys there). Store credentials in the default AWS location:
-
-```text
-~/.aws/credentials
-~/.aws/config
-```
-
-3. Verify the profile and region are usable:
-
-```bash
-aws sts get-caller-identity --profile pai-exercise --region us-east-1
-```
-
-The `AnthropicBedrock` client requires `aws_region` set explicitly — it does not read
-`~/.aws/config` automatically:
-
-```python
-from anthropic import AnthropicBedrock
-client = AnthropicBedrock(aws_region="us-east-1")
 ```

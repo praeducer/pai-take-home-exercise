@@ -45,4 +45,4 @@ def write_manifest(
     local_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     local_file = local_dir / f"{ts}_{sku_id}.json"
-    local_file.write_text(manifest_json)
+    local_file.write_text(f"{manifest_json}\n", encoding="utf-8")

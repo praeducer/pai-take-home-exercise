@@ -210,38 +210,34 @@ sequenceDiagram
 
 ## 7. Component Design
 
-| Component | ID | Technology | Notes |
-|-----------|-----|-----------|-------|
-| Claude Code Interface | C-001 | 8 skills in `.claude/skills/` | `/run-pipeline`, `/pipeline-status`, `/view-results`, `/deploy`, `/teardown`, `/health-check`, `/run-tests`, `/generate-demo` |
-| SKU Brief Parser | C-002 | jsonschema | Validates against `src/schemas/sku_brief_schema.json`; schema version 2.0 with optional `brand_name`, `packaging_type`, `cultural_context` |
-| Asset Manager | C-003 | boto3 S3 | S3 read/write; output key builder `{SKU}/{region}/{format}/`; S3 asset presence check |
-| Prompt Constructor | C-004 | Python f-strings | 3 format-specific builders; returns `(positive, negative)` tuple; brand_profile integration; `_sanitize()` on all inputs |
-| Image Generator | C-005 | boto3 Bedrock runtime | Retry/backoff: 3 attempts, 2^n seconds; tier fallback on ThrottlingException; SHA-256 disk cache; Nova Canvas premium + cfgScale 7.5 |
-| Text Overlay Engine | C-006 | Pillow | 3 layouts (1:1/9:16/16:9); brand name, attribute badges, regulatory text; RGBA alpha compositing |
-| Output Manager | C-007 | boto3 S3 + JSON | Manifest with run_id, models_used, duration, errors; writes to S3 and `outputs/runs/` |
-| IaC Stack | C-008 | CloudFormation YAML | S3x2 (Block Public Access, SSE-S3, versioning), IAM role (least-privilege), Budget alarm |
-| Claude Code Hooks | C-009 | `.claude/settings.json` | PostToolUse auto-lint (ruff); Stop test gate (pytest); PreToolUse Bash guard for destructive commands |
-| GitHub Actions | C-010 | `.github/workflows/` | `ci.yml` (lint+test+pip-audit, SHA-pinned actions) + `deploy.yml` (CF update on main push) |
-| AWS MCP Servers | C-011 | `.mcp.json` (uv) | AWS IaC MCP server + AWS Knowledge MCP server |
-| Text Reasoning Engine | C-012 | `anthropic[bedrock]` | `enhance_prompt_with_reasoning()` via Claude Sonnet 4.6; non-critical path with graceful fallback |
-| Brand Profile Generator | C-013 | `anthropic[bedrock]` | `generate_brand_profile()` via Claude Opus 4.6; once per brief; ensures visual consistency across all images |
+| Component | Technology | Notes |
+|-----------|-----------|-------|
+| Interface | 8 Claude Code skills | `/run-pipeline`, `/health-check`, `/deploy`, `/teardown`, `/view-results`, `/pipeline-status`, `/run-tests`, `/generate-demo` |
+| SKU Parser | jsonschema | Validates against `src/schemas/sku_brief_schema.json` |
+| Asset Manager | boto3 S3 | Key builder: `{SKU}/{region}/{format}/` |
+| Prompt Constructor | Python f-strings | 3 format-specific builders; `_sanitize()` on all inputs |
+| Image Generator | boto3 Bedrock runtime | 3-attempt retry, tier fallback, SHA-256 disk cache |
+| Text Overlay | Pillow | 3 layouts (1:1/9:16/16:9), RGBA alpha compositing |
+| Output Manager | JSON + boto3 S3 | Manifest: run_id, models, duration, errors |
+| Text Reasoning | `anthropic[bedrock]` | Sonnet 4.6 prompt enhancement (non-critical fallback path) |
+| Brand Profiling | `anthropic[bedrock]` | Opus 4.6 visual direction; once per brief for consistency |
+| IaC | CloudFormation YAML | S3×2, IAM role, Budget alarm |
+| CI/CD | GitHub Actions | Lint + test + pip-audit + CloudFormation deploy |
 
 ---
 
 ## 8. AWS Well-Architected Assessment
 
-Scores reflect the final delivered state of the PoC, assessed against the six pillars of the AWS Well-Architected Framework. These are honest self-assessments with evidence — PoC-appropriate gaps are documented with production mitigation paths.
+| Pillar | Score | Key Evidence |
+|--------|-------|-------------|
+| Operational Excellence | 9/10 | CI/CD on every push; `--dry-run` mode; JSON manifests; 43 unit tests; auto-lint hooks |
+| Security | 8/10 | IAM least-privilege + explicit Deny; SSE-S3; Block Public Access; pip-audit in CI; SHA-pinned Actions |
+| Reliability | 7/10 | 3-attempt retry with backoff; tier fallback; per-image error isolation; graceful fallbacks |
+| Performance Efficiency | 8/10 | SHA-256 disk cache (~1950x speedup); Nova Canvas premium; brand profile once per run |
+| Cost Optimization | 9/10 | 3 model tiers; Budget alarm at $20/$25; disk caching; dry-run mode; PoC total ~$2.10 |
+| Sustainability | 7/10 | Caching reduces API calls; dev tier for iteration; on-demand only |
 
-| Pillar | Score | Evidence |
-|--------|-------|---------|
-| **Operational Excellence** | 9/10 | CI/CD on every push (lint + test + pip-audit); `--dry-run` mode for zero-cost validation; JSON manifests per run with duration, errors, and model metadata; `--model-tier` for cost control; 43 unit tests; Claude Code hooks auto-enforce quality on every file edit |
-| **Security** | 8/10 | IAM least-privilege with explicit `Deny` on `s3:Delete*` and `iam:*`; SSE-S3 encryption at rest on both buckets; S3 Block Public Access enabled; no hardcoded credentials (profile-based auth only); `pip-audit --severity high` in CI; SHA-pinned GitHub Actions; PreToolUse Bash guard for destructive commands |
-| **Reliability** | 7/10 | 3-attempt retry with exponential backoff (2^n seconds); tier fallback on ThrottlingException; per-image error isolation (one failure does not stop the run); image caching prevents duplicate API calls; brand profile and prompt enhancement gracefully fall back to defaults |
-| **Performance Efficiency** | 8/10 | SHA-256 disk cache provides ~1950x speedup on re-runs (~0.006s vs ~11.7s); Nova Canvas premium quality for production; Titan V2 for fast dev iteration; brand profile generated once per run (not per image); Pillow overlay is sub-second |
-| **Cost Optimization** | 9/10 | 3 model tiers (dev $0.01/img, iterate/final $0.08/img); Budget alarm at $20 (80%) and $25 (100%); disk caching prevents re-generation; dry-run mode for zero-cost pipeline validation; PoC total ~$2.10; 90-day lifecycle policies on both S3 buckets |
-| **Sustainability** | 7/10 | Image caching reduces Bedrock API calls; dev tier for iteration reduces compute vs. always using premium; on-demand only with zero idle resources; prompt enhancement skipped on cache hit |
-
-**Overall: 8.0/10** — improved from the initial proposal baseline of 6.8/10 through implementation of caching, retry with fallback, per-image error isolation, the tiered model system, and comprehensive CI/CD with security auditing.
+**Overall: 8.0/10** — improved from initial proposal baseline of 6.8/10.
 
 ---
 
@@ -294,178 +290,20 @@ At 1,000 regional packaging variants per month (typical for a mid-size global CP
 
 ---
 
-## 11. Key Design Decisions & Trade-offs
+## 11. Assumptions & Limitations
 
-| Decision | Choice | Alternative Considered | Rationale |
-|----------|--------|----------------------|-----------|
-| **Interface** | Claude Code skills only (8 skills) | argparse CLI / REST API / Streamlit | Zero UI dev time; skills are self-documenting via natural language; hooks enforce quality automatically; matches Adobe's AI-native product vision |
-| **Image model** | Nova Canvas v1:0 (primary) | Stability AI SD3.5 Large / DALL-E | us-east-1 availability (SD3.5 only in us-west-2); TIFA 0.897, ImageReward 1.250 (arxiv 2506.12103); Bedrock-native billing; built-in negative prompt support |
-| **Text reasoning** | `anthropic[bedrock]` package | raw `boto3.client("bedrock-runtime")` | Cleaner messages API; same IAM permissions; `aws_region='us-east-1'` must be explicit (does not read `~/.aws/config`) |
-| **Brand profiling model** | Claude Opus 4.6 | Claude Sonnet 4.6 | Superior creative direction quality for visual identity decisions; cost difference is negligible at $0.01/call |
-| **Storage** | Flat JSON manifests | PostgreSQL on RDS / DynamoDB | PoC scope: 10-100 runs per session; flat JSON is sufficient, zero infrastructure overhead; manifests are human-readable without a DB client; database is documented in BACKLOG.md |
-| **Prompting architecture** | Brand profile (Opus) + 3 format-specific builders + enhancement (Sonnet) | Single generic template for all formats | Ensures visual coherence across a run; distinct composition per format (hero shot vs. lifestyle vs. panoramic); eliminates near-identical images across ratios |
-| **Negative prompts** | Universal "no text/words/letters" + brand-specific | None | Prevents AI text hallucination on packaging — a critical quality issue where models generate garbled fake text on product labels |
-| **IaC** | CloudFormation YAML | AWS CDK / Terraform | Self-contained; no npm or Terraform binary dependency; single file; AWS-native; 4 resources do not justify CDK complexity |
-| **Region** | us-east-1 only | Multi-region | Only region where Nova Canvas + Claude Sonnet 4.6 + Claude Opus 4.6 are all simultaneously available |
-| **Caching** | SHA-256 content-hash disk cache | No cache / Redis / DynamoDB | Zero infrastructure; survives process restarts; 1950x speedup on re-runs; automatic invalidation when any prompt parameter changes |
-| **CI/CD** | GitHub Actions (must-have) | None / Jenkins | Demonstrates production engineering maturity; `pip-audit` closes supply chain finding; SHA-pinned actions close tag substitution risk |
+| Limitation | Production Mitigation |
+|-----------|----------------------|
+| Single AWS region (us-east-1) | Multi-region deployment when Nova Canvas expands |
+| Titan V2 generates 1024×1024 for all ratios | Nova Canvas supports native resolutions; dev tier is for iteration only |
+| System fonts, not brand typography | Font library integration with proper licensing |
+| Placeholder regulatory text | Jurisdictional compliance database integration |
+| Sequential generation (~30s for 6 images) | Async generation with Lambda fan-out |
+| No Bedrock invocation logging | CloudTrail data events for audit trail |
+| Prompt injection: `_sanitize()` provides basic protection | Input validation layer + content moderation on outputs |
+
+Full design decisions and trade-offs: [`docs/design-decisions.md`](design-decisions.md). Production roadmap: [`BACKLOG.md`](../BACKLOG.md).
 
 ---
 
-## 12. AI-Native Development Approach
-
-This implementation demonstrates what "AI-native development" means in practice — not just using AI as a tool, but making AI the foundation of the entire development and delivery surface.
-
-### Claude Code as Interface
-
-All user interactions go through 8 Claude Code custom skills. There is no argparse framework, no REST API, no Streamlit frontend. This eliminates weeks of interface development and positions the developer's AI tooling as the deployment surface. A brand manager types `/run-pipeline inputs/demo_briefs/trail-mix-us.json` and gets 6 packaging images in S3 within 30 seconds.
-
-### Claude Code Hooks as Quality Gates
-
-Three hooks in `.claude/settings.json` enforce quality automatically:
-- **PostToolUse (Edit/Write):** Auto-lints every `.py` file edit with `ruff check` — syntax and style errors caught before they are committed
-- **Stop:** Runs `pytest tests/ -q` before task completion — ensures tests pass before the developer sees "done"
-- **PreToolUse (Bash):** Requires explicit confirmation for destructive AWS commands (`aws.*delete`, `aws.*remove`) — prevents accidental infrastructure teardown
-
-### Claude as Developer
-
-Every Python module, test file, CloudFormation template, GitHub Actions workflow, and documentation file in this repository was written by Claude Sonnet 4.6 / Opus 4.6 under architectural direction from the human developer. The human role was: requirements definition, architecture decisions, IAM policy design, credential configuration, and approval gates at each phase milestone. This AI-assisted approach delivered the complete PoC in approximately 10 AI-assisted hours.
-
-### Claude as Creative Director
-
-`generate_brand_profile()` calls Claude Opus 4.6 with the SKU brief to derive visual direction — photography styles, color palettes, cultural visual elements, background descriptions — that is then applied consistently across all 6 images in a run. The AI system is designing the visual identity for the AI-generated packaging. For the LATAM regional brief, Opus suggested warm terracotta tones, mercado imagery, and vibrant tropical fruit arrangements. For the APAC brief, it recommended clean minimalist composition with cherry blossom accents and soft pastel backgrounds.
-
-### Dog-Fooding
-
-The tool that runs the pipeline (Claude Code) is built on the same foundation models (Claude Opus 4.6, Claude Sonnet 4.6) that generate the brand profiles and enhance the prompts. The system designing the visual direction for packaging images is the same AI system that helps brand managers trigger the pipeline. This recursive use of AI tools — AI building AI-powered tools — is the core insight of AI-native development.
-
----
-
-## 13. Production Roadmap (Documented in BACKLOG.md)
-
-| Enhancement | Priority | Rationale |
-|------------|---------|-----------|
-| **PostgreSQL on RDS** | High | Run history query, audit trail, performance analytics; replace flat JSON manifests |
-| **Lambda + API Gateway** | High | Production auto-scaling; trigger from Adobe GenStudio or other frontends; eliminate local execution dependency |
-| **OIDC Federation for GitHub Actions** | High | Eliminate long-lived AWS credentials in GitHub Secrets; use short-lived STS tokens |
-| **CloudWatch Monitoring** | Medium | Dashboard for Bedrock latency, error rates, and cost tracking; alarm on throttling patterns |
-| **QuickSight Dashboard** | Medium | Pipeline run analytics and variant performance reporting for brand managers |
-| **Real Regulatory Compliance DB** | Medium | Jurisdictional ingredient disclosure requirements; allergen flagging per region |
-| **Multi-language Localization** | Medium | Extend text overlay beyond English; requires font subsetting for CJK, Arabic, Devanagari |
-| **A/B Testing Pipeline** | Low | Generate multiple design variants; collect feedback; reinforce prompts based on preference data |
-| **Multi-region Deployment** | Low | Latency optimization for APAC/EU users; requires Nova Canvas regional expansion |
-| **Brand Font Library** | Low | Replace system fonts with brand-approved typography; requires font licensing |
-
----
-
-## 14. Assumptions & Honest Limitations
-
-| Assumption / Limitation | Impact | Production Mitigation |
-|------------------------|--------|----------------------|
-| **Single AWS region (us-east-1)** | Nova Canvas + Claude Opus/Sonnet co-location required; higher latency for APAC/EU users | Multi-region deployment when Nova Canvas expands to additional regions |
-| **Titan V2 generates 1024x1024 for all ratios** | Dev-tier non-square aspect ratios use square dimensions (not native 576x1024 or 1024x576) | Nova Canvas supports all three native resolutions; dev tier is for iteration speed only |
-| **Text overlay uses system fonts** | Brand-approved fonts are not used; typography is functional but not brand-specific | Typography service integration + brand font library with proper licensing |
-| **No real regulatory compliance data** | Regulatory footer text is placeholder ("See ingredients list") | Integration with jurisdictional compliance database for FDA, EU, APAC regulations |
-| **Image quality requires human review** | Generated packaging must be QA'd by a brand manager before production use | Human-in-the-loop approval workflow with versioned review states |
-| **Sequential image generation** | 6 images generated sequentially (~30s total); not parallelized | Async generation with `asyncio` or Lambda fan-out for sub-10s batch completion |
-| **PoC, not production-hardened** | No SLA, no HA, no monitoring, no dead-letter queues | CloudWatch alarms, DLQ for failed generations, multi-AZ RDS, Lambda concurrency limits |
-| **No Bedrock invocation logging** | CloudTrail not enabled for model invocation audit trail | Enable CloudTrail data events for Bedrock in production for compliance and debugging |
-| **Prompt injection surface** | `_sanitize()` provides basic protection; no adversarial testing performed | Input validation layer with prompt firewall; content moderation on outputs |
-
----
-
-## 15. Appendix: Deployment Architecture
-
-### Infrastructure Diagram
-
-```mermaid
-graph TB
-    subgraph GitHub
-        R["praeducer/pai-take-home-exercise"] --> CI["ci.yml\nruff + pytest + pip-audit\n(SHA-pinned actions)"]
-        R --> CD["deploy.yml\nCloudFormation update\non main push"]
-    end
-    subgraph "AWS us-east-1"
-        subgraph "CloudFormation Stack: pai-exercise"
-            IB["S3: INPUT_BUCKET\nSSE-S3 AES-256\nBlock Public Access\n90-day lifecycle"]
-            OB["S3: OUTPUT_BUCKET\nSSE-S3 AES-256\nBlock Public Access\nVersioning enabled\n90-day lifecycle"]
-            IAM["IAM: pai-pipeline-role\nAllow: bedrock:InvokeModel\n(3 model ARNs)\nAllow: s3:Get/Put/List\nDeny: s3:Delete*, iam:*"]
-            BA["Budget Alarm\n$20 at 80% threshold\n$25 at 100% threshold\nEmail notification"]
-        end
-        subgraph "Amazon Bedrock"
-            NC["Nova Canvas v1:0\npremium quality\ncfgScale 7.5\n$0.08/image"]
-            TI["Titan Image V2:0\nstandard quality\ndev fallback\n$0.01/image"]
-            CS["Claude Sonnet 4.6\nPrompt Enhancement\n256 max tokens\n~$0.001/call"]
-            CO["Claude Opus 4.6\nBrand Profile\n512 max tokens\n~$0.01/call"]
-        end
-    end
-    subgraph "Local Developer Machine"
-        CC["Claude Code CLI\n8 Custom Skills\n3 Quality Hooks"] --> Pipeline["Python 3.12 Pipeline\n8 modules in src/pipeline/"]
-        Pipeline --> IAM
-        IAM --> NC
-        IAM --> TI
-        IAM --> CS
-        IAM --> CO
-        Pipeline --> OB
-        Pipeline -->|"read assets"| IB
-        Cache["~/.cache/pai-pipeline/\nSHA-256 disk cache\n~1950x speedup"] --> Pipeline
-    end
-    CD -->|"aws cloudformation update-stack"| IAM
-```
-
-### CloudFormation Resources
-
-| Resource | Type | Key Configuration |
-|----------|------|-------------------|
-| `PaiAssetsInputBucket` | `AWS::S3::Bucket` | SSE-S3, Block Public Access (all 4 settings), 90-day noncurrent version expiration |
-| `PaiPackagingOutputBucket` | `AWS::S3::Bucket` | SSE-S3, Block Public Access, versioning enabled, 90-day noncurrent version expiration |
-| `PaiPipelineRole` | `AWS::IAM::Role` | Assumable by EC2 service + same-account IAM users; 3 model ARN-scoped `bedrock:InvokeModel`; explicit Deny on delete and IAM operations |
-| `PaiBudgetAlarm` | `AWS::Budgets::Budget` | $25/month COST budget; 80% and 100% threshold email notifications |
-
-### Repository Structure
-
-```
-pai-take-home-exercise/
-  .claude/
-    plans/              # 7 phase plans (master + phases 1-6)
-    skills/             # 8 Claude Code custom skills
-    settings.json       # 3 quality hooks (lint, test, bash guard)
-  .github/workflows/
-    ci.yml              # Lint + test + pip-audit (every push)
-    deploy.yml          # CloudFormation deploy (main push)
-  docs/
-    aws-setup.md        # AWS credential and IAM setup guide
-    demo-script.md      # 20-30 minute demo walkthrough
-    design-decisions.md # 10 key technical decisions with rationale
-    security-configuration.md
-    solution-architecture.md  # This document
-  infra/cloudformation/
-    stack.yaml          # S3x2, IAM role, Budget alarm
-  inputs/
-    demo_briefs/        # 4 regional SKU briefs (US, LATAM, APAC, EU)
-    sample_sku_brief.json
-  outputs/
-    demo/               # Pre-generated demo images (committed)
-    results/            # Pipeline output (gitignored)
-    runs/               # JSON manifests (gitignored)
-  src/pipeline/
-    run_pipeline.py     # Orchestrator — the main entry point
-    sku_parser.py       # C-002: JSON schema validation
-    asset_manager.py    # C-003: S3 read/write + key builder
-    prompt_constructor.py # C-004: 3 format-specific prompt builders
-    image_generator.py  # C-005: Bedrock invoke + cache + retry
-    text_overlay.py     # C-006: Pillow compositing (3 layouts)
-    text_reasoning.py   # C-012/C-013: Claude Sonnet + Opus integration
-    output_manager.py   # C-007: Manifest writer
-  tests/
-    conftest.py         # Shared fixtures (mock briefs, products)
-    test_*.py           # 43 unit tests across 8 test files
-  pyproject.toml        # Project metadata + tool config
-  requirements.txt      # Pinned dependencies
-  Makefile              # lint, test, demo, deploy targets
-  BACKLOG.md            # Production enhancement roadmap
-  CHANGELOG.md          # Version history
-```
-
----
-
-*Document prepared by Paul Prae using Claude Code (Claude Opus 4.6 + Sonnet 4.6). AI-assisted development throughout — all architectural decisions made by human; all code, tests, and documentation written by AI under direction. This recursive AI-builds-AI-tools approach is the core demonstration of the PAI Packaging Automation PoC.*
+*Document prepared by Paul Prae using Claude Code (Claude Opus 4.6 + Sonnet 4.6).*
