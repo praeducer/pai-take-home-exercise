@@ -1,25 +1,25 @@
 {
   "_meta": {
-    "purpose": "Demo brief — Alpine Harvest Organic Trail Mix, APAC market. Zen minimalism aesthetic with matcha green tea variant.",
-    "data_origin": "Created for Phase A/B final wrap-up."
+    "purpose": "Demo brief — Alpine Harvest Organic Trail Mix, APAC market. Tropical Southeast Asian aesthetic with mango coconut variant.",
+    "data_origin": "Updated 2026-03-20: Changed from matcha green tea to mango coconut for clearer trail mix category signaling."
   },
   "sku_id": "alpine-harvest-trail-mix",
   "brand_name": "Alpine Harvest",
   "packaging_type": "stand-up resealable pouch",
-  "cultural_context": "Japanese-influenced zen minimalism. White and forest green palette with bamboo and stone accents. Clean lines, generous negative space, understated elegance. Communicates purity and natural quality.",
+  "cultural_context": "Southeast Asian tropical vibrancy. Warm golden-orange and deep green palette with mango, coconut palm, and tropical foliage motifs. Fresh, energetic, and natural. Communicates adventure snacking and natural tropical ingredients.",
   "products": [
     {
       "name": "Alpine Harvest Trail Mix",
       "flavor": "Original",
-      "description": "Clean, pure blend of almonds, macadamia, white sesame seeds, and dried yuzu for a refined snacking experience"
+      "description": "Crisp macadamia nuts, cashews, dried pineapple, and toasted coconut flakes for tropical trail energy"
     },
     {
       "name": "Alpine Harvest Trail Mix",
-      "flavor": "Matcha Green Tea",
-      "description": "Delicate matcha-dusted almonds, edamame crisps, and white chocolate chips inspired by Japanese tea ceremony traditions"
+      "flavor": "Mango Coconut",
+      "description": "Sun-dried mango chunks, toasted coconut chips, macadamia nuts, and candied ginger — Southeast Asia in every handful"
     }
   ],
   "region": "apac",
-  "audience": "urban wellness-focused consumers 25-40 in Japan, South Korea, and Southeast Asia",
-  "attributes": ["organic", "non-gmo", "matcha-infused", "clean-label"]
+  "audience": "active urban consumers 22-38 in Southeast Asia, Australia, and South Korea seeking natural adventure snacks",
+  "attributes": ["organic", "non-gmo", "tropical-flavors", "no-preservatives"]
 }
