@@ -1,10 +1,12 @@
-# Technical Architecture Brief
+# Technical Architecture Brief (Pre-Implementation)
 ## PAI Take-Home Exercise — Product Packaging Variant Generator
+
+> **Note:** This is the pre-implementation architecture brief (v2.0, 2026-03-18), written before coding began. It captures the planned architecture, estimates, and risk assessment. For the actual post-implementation architecture reflecting what was built, see [`docs/solution-architecture.md`](../../docs/solution-architecture.md). Key differences: WA scores improved from 6.8→8.0, actual cost was ~$2.10 (vs. ~$5 estimated), brand profiling uses Sonnet 4.6 tool_use (vs. planned Opus 4.6 raw JSON).
 
 **Prepared for**: Adobe PAI Interview Panel (Senior Engineers + Hiring Manager)
 **Engagement**: PAI Packaging Automation PoC
 **Scope**: Proof of Concept — AI-Native Development Pipeline with AWS Bedrock
-**Deliverable Type**: Technical Architecture Brief (accompanies GitHub repository)
+**Deliverable Type**: Technical Architecture Brief (pre-implementation plan)
 **Version**: 2.0 (2026-03-18)
 
 ---
@@ -205,7 +207,7 @@ This approach demonstrates the same philosophy that makes GenAI packaging automa
 | P-005 | Docs & Demo | README with images, v1.0.0 tag | G-005 |
 | P-006 | Enhancements | Brand + regulatory checks (optional) | — |
 
-Full phase plans are documented in `outputs/eng-2026-003/plans/` — 7 self-contained markdown files executable by an implementation agent in a single work session.
+Full phase plans are documented in `.claude/plans/` — 7 self-contained markdown files executable by an implementation agent in a single work session.
 
 ---
 
@@ -296,7 +298,7 @@ Full phase plans are documented in `outputs/eng-2026-003/plans/` — 7 self-cont
 
 ### Assumptions
 
-- AWS account `730007904340` is available for this exercise
+- AWS account `[ACCOUNT_ID]` is available for this exercise
 - Amazon Bedrock model access granted for: `amazon.nova-canvas-v1:0`, `amazon.titan-image-generator-v2:0`, `anthropic.claude-sonnet-4-6` in `us-east-1`
 - SKU brief JSON schema defined by the developer (not provided by interviewer)
 - Brand assets for PoC can be synthetic/placeholder images
@@ -411,7 +413,7 @@ flowchart TB
 
 ## 13. Plan-of-Plans Reference
 
-The full implementation plan is documented in `outputs/eng-2026-003/plans/` — 7 self-contained markdown files:
+The full implementation plan is documented in `.claude/plans/` — 7 self-contained markdown files:
 
 - `00-master-plan.md` — global acceptance criteria, phase dependency graph, human action list
 - `phase-01-foundation.md` through `phase-06-enhancements.md` — executable phase plans

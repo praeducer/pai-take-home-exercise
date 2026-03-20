@@ -14,7 +14,7 @@ Read the master plan first: `.claude/plans/00-master-plan.md`
 
 ## Current State
 
-**Phase 5 — Complete. v1.0.0 tagged.**
+**Phase 5 — Complete. v1.2.0 tagged.**
 
 - AWS: `pai-exercise` profile, us-east-1, stack CREATE_COMPLETE
 - Python 3.12, all deps in `.venv`
@@ -71,14 +71,32 @@ aws cloudformation describe-stacks --stack-name pai-exercise --profile pai-exerc
 
 ---
 
+## Deliverable Document Process
+
+There are two architecture documents. They serve different purposes:
+
+| Document | Role | Ground Truth |
+|----------|------|-------------|
+| `outputs/deliverables/proposal.md` | **Pre-implementation** SA brief (v2.0). Written before coding. Captures planned architecture, estimates, risks. Historical record — do not update to match code. |  `inputs/PAI-Take_Home_Exercise.md` (exercise spec) |
+| `docs/solution-architecture.md` | **Post-implementation** architecture (v2.1+). Reflects what was actually built. This is the client-facing deliverable sent to interviewers. | The codebase itself (`src/pipeline/`, tests, infra) |
+
+**When updating deliverables:**
+1. Read the current code, tests, and `git log` — these are ground truth
+2. Update `docs/solution-architecture.md` to match
+3. Update `outputs/deliverables/submission-email.md` to reference accurate stats
+4. Do NOT update `outputs/deliverables/proposal.md` — it's a historical pre-implementation record
+5. Redact all PII: use `[INTERVIEWER_NAME]`, `[ACCOUNT_ID]`, `[CANDIDATE_ID]` placeholders
+
+---
+
 ## Reference Files
 
 | File | Purpose |
 |------|---------|
 | `.claude/plans/00-master-plan.md` | Master plan — acceptance criteria, phase graph |
 | `.claude/plans/phase-06-enhancements.md` | Phase 6 — brand + regulatory checks (not yet executed) |
-| `inputs/PAI-Take_Home_Exercise.md` | Original exercise spec |
+| `inputs/PAI-Take_Home_Exercise.md` | Original exercise spec — source of truth for requirements |
 | `docs/design-decisions.md` | Technical decisions with rationale |
-| `docs/solution-architecture.md` | Full architecture document |
-| `outputs/deliverables/proposal.md` | SA technical architecture brief |
+| `docs/solution-architecture.md` | Post-implementation architecture — **primary deliverable** |
+| `outputs/deliverables/proposal.md` | Pre-implementation SA brief (historical, not updated) |
 | `outputs/deliverables/submission-email.md` | Submission email draft (PII redacted) |

@@ -55,7 +55,7 @@ The PAI Packaging Automation PoC is a multi-step generative AI pipeline that tra
 | Interface | 8 Claude Code custom skills (zero argparse) |
 | Image models | Nova Canvas v1:0 (primary), Titan Image V2:0 (dev/fallback) |
 | Text reasoning models | Claude Sonnet 4.6 (brand profile via tool_use + prompt enhancement) |
-| Test coverage | 43 unit tests across 8 test files |
+| Test coverage | 46 unit tests across 8 test files |
 | CI/CD | GitHub Actions — lint (ruff) + test (pytest) + security audit (pip-audit) + CloudFormation deploy |
 | Demo output | 24 images = 4 regions x 2 products x 3 formats |
 | Total PoC cost | ~$2.10 |
@@ -230,7 +230,7 @@ sequenceDiagram
 
 | Pillar | Score | Key Evidence |
 |--------|-------|-------------|
-| Operational Excellence | 9/10 | CI/CD on every push; `--dry-run` mode; JSON manifests; 43 unit tests; auto-lint hooks |
+| Operational Excellence | 9/10 | CI/CD on every push; `--dry-run` mode; JSON manifests; 46 unit tests; auto-lint hooks |
 | Security | 8/10 | IAM least-privilege + explicit Deny; SSE-S3; Block Public Access; pip-audit in CI; SHA-pinned Actions |
 | Reliability | 7/10 | 3-attempt retry with backoff; tier fallback; per-image error isolation; graceful fallbacks |
 | Performance Efficiency | 8/10 | SHA-256 disk cache (~1950x speedup); Nova Canvas premium; brand profile once per run |
