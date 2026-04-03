@@ -10,25 +10,25 @@ Execute the test suite.
 ## Unit Tests (default — no AWS required)
 
 ```bash
-python -m pytest tests/ -q --tb=short -m "not integration"
+uv run pytest tests/ -q --tb=short -m "not integration"
 ```
 
 ## Integration Tests (requires AWS credentials)
 
 ```bash
-AWS_PROFILE=pai-exercise python -m pytest tests/ -q --tb=short -m "integration"
+AWS_PROFILE=pai-exercise uv run pytest tests/ -q --tb=short -m "integration"
 ```
 
 ## Linting
 
 ```bash
-ruff check src/ tests/
+uv run ruff check src/ tests/
 ```
 
 ## Dependency Audit
 
 ```bash
-pip-audit --require-hashes -r requirements.txt 2>/dev/null || pip-audit -r requirements.txt
+uv run pip-audit
 ```
 
 ## Expected Output (Phase 4+)

@@ -26,11 +26,11 @@ aws bedrock list-foundation-models --region us-east-1 --profile pai-exercise \
   --output table 2>/dev/null || echo "Bedrock check failed"
 
 echo "=== Python Environment ==="
-python --version
-python -c "import boto3, PIL, anthropic, jsonschema; print('deps OK')" 2>/dev/null || echo "deps NOT OK — run: pip install -r requirements.txt"
+uv run python --version
+uv run python -c "import boto3, PIL, anthropic, jsonschema; print('deps OK')" 2>/dev/null || echo "deps NOT OK — run: uv sync"
 
-echo "=== uv (MCP transport) ==="
-uv --version 2>/dev/null || echo "uv not installed — run: pip install uv"
+echo "=== uv ==="
+uv --version 2>/dev/null || echo "uv not installed — see https://docs.astral.sh/uv/"
 ```
 
 ## Expected Healthy Output

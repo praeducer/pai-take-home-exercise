@@ -29,7 +29,7 @@ OUTPUT_BUCKET=$(aws cloudformation describe-stacks \
 for brief in inputs/demo_briefs/trail-mix-us.json inputs/demo_briefs/trail-mix-latam.json inputs/demo_briefs/trail-mix-apac.json inputs/demo_briefs/trail-mix-eu.json; do
   echo "Processing: $brief"
   PAI_OUTPUT_BUCKET="$OUTPUT_BUCKET" \
-  python -m src.pipeline.run_pipeline "$brief" \
+  uv run python -m src.pipeline.run_pipeline "$brief" \
     --model-tier "${MODEL_TIER:-final}" \
     --profile pai-exercise
 done

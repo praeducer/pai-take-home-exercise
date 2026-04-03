@@ -32,7 +32,7 @@ Run the PAI pipeline for the given SKU brief JSON file.
 
 1. Parse arguments from `$ARGUMENTS`
 2. Verify the SKU brief file exists and is valid JSON
-3. Run: `PAI_OUTPUT_BUCKET=$(aws cloudformation describe-stacks --stack-name pai-exercise --profile pai-exercise --query 'Stacks[0].Outputs[?OutputKey==`OutputBucketName`].OutputValue' --output text) python -m src.pipeline.run_pipeline "$SKU_BRIEF_PATH" --model-tier "$MODEL_TIER" $DRY_RUN_FLAG`
+3. Run: `PAI_OUTPUT_BUCKET=$(aws cloudformation describe-stacks --stack-name pai-exercise --profile pai-exercise --query 'Stacks[0].Outputs[?OutputKey==`OutputBucketName`].OutputValue' --output text) uv run python -m src.pipeline.run_pipeline "$SKU_BRIEF_PATH" --model-tier "$MODEL_TIER" $DRY_RUN_FLAG`
 4. Show output S3 paths and manifest location
 5. If dry-run: show what would have been generated
 

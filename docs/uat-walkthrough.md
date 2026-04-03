@@ -79,9 +79,9 @@ These are the externally visible deliverables. An interviewer reviewing your sub
 
 **To reproduce locally:**
 ```bash
-ruff check src/ tests/
-pytest tests/ -v -m "not integration" -q
-pip-audit -r requirements.txt
+uv run ruff check src/ tests/
+uv run pytest tests/ -v -m "not integration" -q
+uv run pip-audit
 ```
 
 ☐ Latest CI run shows all steps green
