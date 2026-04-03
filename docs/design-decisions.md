@@ -26,7 +26,7 @@ Technical decisions and their rationale for interviewers who want to go deeper.
 
 **Why:** Zero UI development time. Better developer experience — invocations are natural language (`/run-pipeline`) rather than memorized flag strings. Hooks enforce code quality automatically (ruff on every `.py` edit, pytest on stop). Positions AI-native tooling as the primary interface pattern, which aligns with Adobe GenStudio's AI-first product vision.
 
-**Tradeoff:** Skills only work within Claude Code sessions — not scriptable in cron jobs or CI pipelines directly. Mitigation: the underlying `python -m src.pipeline.run_pipeline` CLI still works for automation.
+**Tradeoff:** Skills only work within Claude Code sessions — not scriptable in cron jobs or CI pipelines directly. Mitigation: the underlying `uv run python -m src.pipeline.run_pipeline` CLI still works for automation.
 
 ---
 

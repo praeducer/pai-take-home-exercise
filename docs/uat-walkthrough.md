@@ -146,7 +146,7 @@ uv run pip-audit
 
 **Run locally:**
 ```bash
-pytest tests/ -v -m "not integration"
+uv run pytest tests/ -v -m "not integration"
 # Expected: 42 passed, 3 skipped, 1 deselected
 ```
 
@@ -219,7 +219,7 @@ Run these commands locally to confirm the pipeline behaves correctly before the 
 
 ```bash
 cd C:/dev/pai-take-home-exercise
-python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json --dry-run
+uv run python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json --dry-run
 ```
 
 **Expected output:**
@@ -244,7 +244,7 @@ Pipeline complete: 0 images, ~0.04s
 
 ```bash
 PAI_OUTPUT_BUCKET=pai-exercise-paipackagingoutputbucket-l4u1ootx9lac \
-  python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json \
+  uv run python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json \
   --model-tier dev --profile pai-exercise
 ```
 
@@ -462,19 +462,19 @@ Run this after any code change to confirm nothing broke.
 
 ```bash
 # 1. Lint
-ruff check src/ tests/
+uv run ruff check src/ tests/
 # Expected: All checks passed!
 
 # 2. Unit tests
-pytest tests/ -v -m "not integration" -q
+uv run pytest tests/ -v -m "not integration" -q
 # Expected: 42 passed, 3 skipped, 1 deselected
 
 # 3. Dry-run pipeline
-python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json --dry-run
+uv run python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json --dry-run
 # Expected: 6 [dry-run, skipped] lines, exits <1s
 
 # 4. Schema validation
-python -c "
+uv run python -c "
 import json, jsonschema
 s = json.load(open('src/schemas/sku_brief_schema.json'))
 for f in ['inputs/sample_sku_brief.json'] + [f'inputs/demo_briefs/trail-mix-{r}.json' for r in ['us','latam','apac','eu']]:
