@@ -19,7 +19,7 @@ Before starting, confirm you have these ready:
 |-------------|-------|
 | AWS CLI authenticated: `aws sts get-caller-identity --profile pai-exercise` returns account ID | ☐ |
 | GitHub logged in as `praeducer` | ☐ |
-| Python env active: `python -c "import boto3, anthropic, PIL; print('OK')"` returns `OK` | ☐ |
+| Python env active: `uv run python -c "import boto3, anthropic, PIL; print('OK')"` returns `OK` | ☐ |
 | Working directory: `cd C:/dev/pai-take-home-exercise` | ☐ |
 
 ---

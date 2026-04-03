@@ -17,7 +17,7 @@ Read the master plan first: `.claude/plans/00-master-plan.md`
 **Phase 5 — Complete. v1.2.0 tagged.**
 
 - AWS: `pai-exercise` profile, us-east-1, stack CREATE_COMPLETE
-- Python 3.12, all deps in `.venv`
+- Python 3.12, managed by uv (deps in `.venv`)
 - Bedrock: Nova Canvas + Claude Sonnet 4.6 verified
 - GitHub Actions CI: green (lint + tests + pip-audit)
 
