@@ -1,3 +1,29 @@
+[project]
+name = "pai-take-home-exercise"
+version = "1.2.0"
+description = "GenAI packaging image generation pipeline for Adobe PAI take-home exercise"
+requires-python = ">=3.12"
+authors = [{ name = "Paul Prae", email = "paul@paulprae.com" }]
+dependencies = [
+    "anthropic[bedrock]>=0.86.0",
+    "jsonschema>=4.26.0",
+    "pillow>=12.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.0",
+    "ruff>=0.15.0",
+    "pip-audit>=2.10.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"

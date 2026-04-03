@@ -31,12 +31,12 @@ run:
 	  --query 'Stacks[0].Outputs[?OutputKey==`OutputBucketName`].OutputValue' \
 	  --output text 2>/dev/null))
 	PAI_OUTPUT_BUCKET=$(BUCKET) \
-	python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json \
+	uv run python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json \
 	  --model-tier final --profile pai-exercise
 
 # Zero-cost dry-run — validates schema, shows what would be generated
 dry-run:
-	python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json --dry-run
+	uv run python -m src.pipeline.run_pipeline inputs/sample_sku_brief.json --dry-run
 
 # Run all 4 regional demo briefs (24 images, Nova Canvas final tier)
 run-demo:
@@ -52,7 +52,7 @@ run-demo:
 	  echo ""; \
 	  echo "=== $$brief ==="; \
 	  PAI_OUTPUT_BUCKET=$(BUCKET) \
-	  python -m src.pipeline.run_pipeline $$brief \
+	  uv run python -m src.pipeline.run_pipeline $$brief \
 	    --model-tier final --profile pai-exercise; \
 	done
 
@@ -101,19 +101,19 @@ deliverables:
 
 # Run unit tests (no AWS required)
 test:
-	python -m pytest tests/ -q -m "not integration"
+	uv run pytest tests/ -q -m "not integration"
 
 # Run all tests including integration (requires AWS credentials)
 test-all:
-	AWS_PROFILE=pai-exercise python -m pytest tests/ -q
+	AWS_PROFILE=pai-exercise uv run pytest tests/ -q
 
 # Lint with ruff
 lint:
-	ruff check src/ tests/
+	uv run ruff check src/ tests/
 
 # Security audit
 audit:
-	pip-audit -r requirements.txt
+	uv run pip-audit
 
 # ── Help ──────────────────────────────────────────────────────────────────────
 
